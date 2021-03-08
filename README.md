@@ -1,2 +1,2 @@
-# tri
+# Teoria de Resposta ao Item com R
 Materiais do curso de Teoria de Resposta ao Item com R da USF
