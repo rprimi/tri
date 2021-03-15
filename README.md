@@ -18,4 +18,6 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
     -   [Planilha alfa.xlsx](http://www.labape.com.br/rprimi/TRI/2017_exercicios/alfa.xlsx)
 
+    -   Dados exercício 1 [gf_matrix.xlsx](http://www.labape.com.br/rprimi/TRI/2017_exercicios/gf_matrix.xlsx)
+
 #### Aula 2 Fundamentos da teoria da resposta ao item
