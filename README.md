@@ -20,4 +20,10 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
     -   Dados exercício 1 [gf_matrix.xlsx](http://www.labape.com.br/rprimi/TRI/2017_exercicios/gf_matrix.xlsx)
 
+    -   Exercício de simulação de dados (Cap. 5 ): [Reliability.rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Reliability.Rmd)
+
 #### Aula 2 Fundamentos da teoria da resposta ao item
+
+-   Slides: <http://www.labape.com.br/rprimi/TRI/a2_intro_tri.pdf>
+
+-   Exercício:

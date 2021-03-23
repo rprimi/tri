@@ -7,32 +7,88 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(CTT)
+library(knitr)
+library(tidyverse)
 ```
 
 ## Introduction
+
 This document shows how test reliability is affected by test length, sample size and the range of student abilities.
 
+![](ex1.pdf){width="600" height="145"}
+
+## code components
+
+```{r}
+
+dim(outer( theta , seq( -2 , 2 , len=I ), "-"))
+theta[1] - -2 == outer( theta , seq( -2 , 2 , len=I ), "-")[1,1]
+
+runif( N*I ) %>% hist
+
+set.seed(6778)
+N <- 200            # number of students
+theta <- rnorm( N ) # student abilities
+hist(theta)
+
+I = 10   # number of items
+d <- seq( -2 , 2, len = I) # item difficulktie
+
+hist(runif(10000))
+
+coin <- matrix( runif( N*I ) , nrow=N , ncol=I )
+
+theta_d <- outer( theta , d , "-"  )
+
+p1 <- plogis( theta_d )
+
+
+hist(coin)
+p1 > coin
+
+   #item 
+resp <- 1 * ( p1 > coin )  # item 
+resp2 <- 1 * ( p1 > .50 ) 
+colnames(resp) <- paste("I" , 1:I, sep="_")
+
+CTTstats <- CTT::reliability(resp)
+reliability(resp)
+reliability(resp2)
+
+
+#Run item analysis
+
+Rel <- CTTstats$alpha
+
+
+```
+
 ```{r, echo=FALSE, message = FALSE}
-rm(list = ls())  #remove all variables in memory
-library(CTT)
-library(knitr)
+
 
 Rel <- rep(0,10)
+
 TestLength <- seq(10,100,length=10)
+TestLength[1]
+
+
 for (i in 1:10){
 # Generate dichotomous Rasch item responses
 set.seed(6778)
-N <- 2000           # number of students
+N <- 200           # number of students
 theta <- rnorm( N ) # student abilities
 I <-TestLength[i]            # number of items
 p1 <- plogis( outer( theta , seq( -2 , 2 , len=I ) , "-" ) )  #item difficulties from -2 to 2
 resp <- 1 * ( p1 > matrix( runif( N*I ) , nrow=N , ncol=I ) )  # item responses
 colnames(resp) <- paste("I" , 1:I, sep="")
-
 #Run item analysis
 CTTstats <- CTT::reliability(resp)
 Rel[i] <- CTTstats$alpha
 }
+
+Rel
 ```
 
 ## Reliability as a function of test length
@@ -44,8 +100,7 @@ kable(res,col.names=c("Test Length","Test Reliability"),align='cc')
 ```
 
 ## A plot of test reliability as a function of test length
+
 ```{r, echo=FALSE}
 plot(TestLength, round(Rel,2))
 ```
-
-

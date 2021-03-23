@@ -1,0 +1,167 @@
+---
+title: "Questões TRI"
+author: "Alexandre Jaloto, Gustavo Henrique, Daniel Mariani e Araê Cainã"
+date: "15/03/2021"
+output: html_document
+---
+
+# Q1
+
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+library(psych)
+library(dplyr)
+library(knitr)
+library(mirt)
+```
+
+
+```{r warning=FALSE, message=FALSE}
+
+# Define o score real
+trueScore <- rnorm(n = 200, mean = .50, .10)
+trueScore <- runif(n = 200)
+hist(trueScore)
+sd(trueScore)
+# criando dataframe com 10 colunas e 200 respostas
+aleatorios <- matrix(runif (10*200), nrow = 200, ncol = 10)
+
+head(aleatorios)
+
+
+```
+
+
+
+```{r warning=FALSE, message=FALSE}
+# define o critério de acerto de cada item com base no trueScore
+banco <- 1 * (trueScore > aleatorios) %>% data.frame()
+
+colMeans(aleatorios)
+colMeans(banco)
+mean(trueScore)
+
+CTT::reliability(banco)
+
+
+# calcula o score observado
+banco$observedScore = rowSums(banco)
+
+# adiciona o trueScore à base de dados
+banco$trueScore <- trueScore
+
+# arredonda o valor de trueScore
+banco$trueScore <- round(banco$trueScore, digits = 2)
+
+# Organiza a ordem das colunas
+banco <- banco[, c(12, 1:11)]
+
+knitr::kable(head(banco))
+```
+
+```{r warning=FALSE, message=FALSE}
+# calcula a correlação
+cor(banco$trueScore, banco$observedScore)
+```
+
+
+```{r warning=FALSE, message=FALSE}
+# calcula o alpha
+
+summary(psych::alpha(banco[,2:11]))
+
+```
+
+```{r  warning=FALSE, message=FALSE}
+# gera outro banco de dados utilizando o mesmo trueScore 
+
+aleatorios2 <- matrix(runif (10*200), nrow = 200, ncol = 10)
+banco2 <- 1 * (trueScore > aleatorios2) %>%  data.frame()
+banco2$observedScore2 = rowSums(banco2)
+banco2$trueScore <- trueScore
+banco2$trueScore <- round(banco$trueScore, digits = 2)
+banco2 <- banco2[, c(12, 1:11)]
+
+# correlação entre primeiro e o segundo observedScore
+cor(banco$observedScore, banco2$observedScore2)
+```
+#### A pergunta final da autora é: como que esse coeficiente de correlation compara com o alpha de Chronbach
+
+
+# Q2
+
+```{r warning=FALSE, message=FALSE}
+# função
+q2 <- function(nItens, nParticipantes){
+  
+  trueScore <- runif(nParticipantes)
+  aleatorios <- matrix(runif (nItens*nParticipantes), nrow = nParticipantes, ncol = nItens)
+  banco <- 1 * (trueScore > aleatorios) %>%  data.frame()
+  banco$observedScore = rowSums(banco)
+  banco$trueScore <- trueScore
+  banco$trueScore <- round(banco$trueScore, digits = 2)
+  alpha <- summary(psych::alpha(banco[,1:nItens]))
+  
+  return(alpha$std.alpha)
+}
+
+```
+
+
+```{r warning=FALSE, message=FALSE}
+
+dfQ2 <- data.frame(
+  nItens = seq(10, 100, 10)
+)
+
+for(i in 1:dim(dfQ2)){
+  dfQ2$alpha[i] <- q2(dfQ2$nItens[i], 200)
+}
+
+plot(dfQ2$nItens, dfQ2$alpha, data = dfQ2)
+lines(lowess(dfQ2$alpha ~ dfQ2$nItens), col = "blue")
+
+```
+
+
+
+# Q3
+```{r warning=FALSE, message=FALSE}
+
+
+dfQ3 <- data.frame(
+  nParticipantes = seq(200, 2000, 100)
+)
+
+for(i in 1:dim(dfQ3)){
+  dfQ3$alpha[i] <- q2(10, dfQ3$nParticipantes[i])
+}
+
+plot(dfQ3$nParticipantes, dfQ3$alpha)
+abline(lm(dfQ3$alpha ~ dfQ3$nParticipantes), col = "blue")
+```
+
+
+# Q4
+
+```{r warning=FALSE, message=FALSE}
+library(mirt)
+
+media = seq (-2, 2, .1)
+alfa = c()
+
+for (i in 1:length(media))
+{
+med = media[i]
+  set.seed(1234)
+theta = as.matrix (rnorm(1000, med))
+a = rlnorm(100, 1, 1.5)
+d = rnorm(100)
+sim = simdata(a, d, itemtype = '2PL', Theta = theta)
+
+alfa[i] = alpha(sim)$total$raw_alpha
+}
+
+plot(media, alfa)
+```
+
