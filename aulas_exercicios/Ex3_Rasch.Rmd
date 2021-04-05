@@ -1,0 +1,115 @@
+---
+title: Exercício 3. Calibrando o modelo de Rasch
+author: "Ricardo Primi"
+date: "5 de abril de 2021"
+output: 
+  html_document: 
+    highlight: textmate
+    theme: paper
+---
+
+```{r global_options, include=FALSE}
+  knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+#### Exercicio 1. Análise de rasch com gf_matrix
+
+```{r}
+gf_matrix <- read_excel("aulas_exercicios/gf_matrix.xlsx", range = "A2:R1184")
+```
+
+-   Calibrando o modelo de Rasch com TAM
+
+```{r}
+
+  library(TAM)
+  mod1 <- tam.jml(gf_matrix[ , 2:17])
+ 
+```
+
+-   Examinando os parâmetros
+
+```{r}
+ summary(mod1)
+ hist(mod1$WLE)
+ hist(mod1$xsi)
+
+```
+
+-   Índices de ajuste
+
+```{r}
+
+fit <- tam.jml.fit(mod1)
+fit$fit.item
+
+```
+
+-   Visualizando as CCI's
+
+```{r}
+ 
+  plot(mod1, items = 1:16,  ngroups=10)
+  
+```
+
+-   Psicometria classica (como no último exercicio)
+
+```{r}
+ library(CTT)
+ tct_gfmatrix <- CTT::reliability(as.data.frame(gf_matrix[ , 2:17]))
+```
+
+-   Precisão Rasch
+
+```{r}
+
+  WLErel(mod1$WLE, mod1$errorWLE)
+ 
+```
+
+-   Mapa de itens e pessoas
+
+```{r}
+
+library(WrightMap)
+WrightMap::wrightMap(thetas = mod1$theta, thresholds = mod1$xsi, new.quartz = TRUE)
+
+```
+
+-   Criando curvas empíricas
+
+```{r}
+ 
+  library(tidyverse)
+
+  dev.new()
+
+  gf_matrix %>% 
+    ggplot(aes(y = i03, x = Score)) + 
+    geom_smooth() + 
+    geom_point(
+      data = {
+         gf_matrix %>% select(i03, Score) %>%
+          group_by(Score) %>%
+          dplyr::summarise(i03 = mean(i03, na.rm=TRUE))
+         },
+      mapping = aes(y = i03, x = Score),
+      stat = "identity"
+      
+    ) + 
+    theme_light() 
+  
+  
+  
+
+```
+
+#### Exercício 2. Tente você com os dados do ENEM
+
+-   Faça o dwonload do arquivo de <http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/enem_2015.RData>
+
+```{r }
+
+  load("enem_2015.RData")
+```
