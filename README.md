@@ -8,7 +8,7 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 #### Aula 1 Psicometria clássica
 
--   Programa: <http://www.labape.com.br/rprimi/TRI/Prog.%20TRI%202021%201o%20Semestre.docx>
+-   Programa: <http://www.labape.com.br/rprimi/TRI/Prog.%20TRI%202021%201o%20Semestre.docx>. Atualizado 14/01/2021.
 
 -   Slides: <http://www.labape.com.br/rprimi/TRI/a1_cct_2021.pptx>
 
