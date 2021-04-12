@@ -15,7 +15,10 @@ output:
 #### Exercicio 1. Análise de rasch com gf_matrix
 
 ```{r}
-gf_matrix <- read_excel("aulas_exercicios/gf_matrix.xlsx", range = "A2:R1184")
+library(readxl)
+gf_matrix <- read_excel("gf_matrix.xlsx", range = "A2:R1184")
+
+getwd()
 ```
 
 -   Calibrando o modelo de Rasch com TAM
@@ -31,8 +34,13 @@ gf_matrix <- read_excel("aulas_exercicios/gf_matrix.xlsx", range = "A2:R1184")
 
 ```{r}
  summary(mod1)
+ 
+
  hist(mod1$WLE)
+ hist(mod1$theta)
  hist(mod1$xsi)
+ 
+ plot(mod1$theta, mod1$WLE)
 
 ```
 
@@ -45,6 +53,17 @@ fit$fit.item
 
 ```
 
+-   Psicometria classica (como no último exercicio)
+
+```{r}
+ library(CTT)
+ tct_gfmatrix <- CTT::reliability(as.data.frame(gf_matrix[ , 2:17]))
+ 
+ summary(tct_gfmatrix)
+ 
+ tct_gfmatrix %>% view
+```
+
 -   Visualizando as CCI's
 
 ```{r}
@@ -53,12 +72,6 @@ fit$fit.item
   
 ```
 
--   Psicometria classica (como no último exercicio)
-
-```{r}
- library(CTT)
- tct_gfmatrix <- CTT::reliability(as.data.frame(gf_matrix[ , 2:17]))
-```
 
 -   Precisão Rasch
 
@@ -73,7 +86,11 @@ fit$fit.item
 ```{r}
 
 library(WrightMap)
-WrightMap::wrightMap(thetas = mod1$theta, thresholds = mod1$xsi, new.quartz = TRUE)
+WrightMap::wrightMap(
+  thetas = mod1$theta, 
+  thresholds = mod1$xsi, 
+  new.quartz = TRUE
+  )
 
 ```
 
@@ -111,5 +128,208 @@ WrightMap::wrightMap(thetas = mod1$theta, thresholds = mod1$xsi, new.quartz = TR
 
 ```{r }
 
-  load("enem_2015.RData")
+  load("../enem_2015.RData")
+
 ```
+
+
+
+#### Bônus
+
+
+- Mapa de construto mais bonito !!
+```{r}
+
+source("http://www.labape.com.br/rprimi/R/utils_construct_maps.R")
+library(RColorBrewer)
+
+
+person_item_map_v3(
+  item_tresh = mod1$xsi,                 
+  coditem = names(gf_matrix)[2:17],   
+  item_text=names(gf_matrix)[2:17], 
+  pole = rep(1, 16),  
+  theta = mod1$theta, 
+  min = -3, 
+  max = 3,
+  step = 1,
+  item_text_max = 28,
+  binwidth = .5,
+  size_categ_label = 3,
+  size_bar = 3,
+  categ_label = c("1", "2"),
+  categ_color = c("#DF4949", "#2B82C9"), 
+  intercept=0,
+  color_hist = "#2B82C9",
+  probs = c(.25, .50, .75)
+ )
+
+
+
+```
+- Define identificação pela média de dificuldade dos itens igual a zero (semelhandte ao que o winsteps faz)
+
+```{r}
+
+
+ mod2 <- tam.jml(gf_matrix[ , 2:17], constraint="items")
+ summary(mod2)
+ 
+ hist(mod1$WLE)
+ hist(mod2$WLE)
+ 
+ hist(mod1$xsi)
+ hist(mod2$xsi)
+ 
+ 
+ 
+```
+- Análide da dimensionalidade do teste gf
+
+```{r}
+
+library(psych)
+library(tidyverse)
+
+ fa.parallel(gf_matrix[ , 2:17], cor = "tet", )
+
+ r_matrix <- tetrachoric(gf_matrix[ , 2:17])
+
+ r_matrix$rho %>% data.frame %>% 
+   add_rownames(var = "coditem1") %>% 
+   pivot_longer(cols = 2:17, names_to = "coditem2" ,values_to = "r") %>%
+    ggplot(
+      aes(x=r)
+      ) +
+    geom_histogram(
+      aes(y=..density..),
+      binwidth = .10,
+      color = "white", 
+      fill = "red", 
+      alpha = .5
+      ) +
+    scale_x_continuous(
+      breaks = seq(0, 1, .1),
+      limits = c(0,1) 
+    ) +
+    scale_color_brewer(palette = "Set1") +
+    theme_minimal()
+
+ 
+ 
+
+```
+- Análide da dimensionalidade do ENEM (mat)
+
+```{r}
+
+load("~/Dropbox (Personal)/TRI/tri/enem_2015.RData")
+
+score_mt %>% sample_n(size = 1200) %>% 
+  fa.parallel(cor = "tet")
+
+score_ch %>% sample_n(size = 1200) %>% 
+  fa.parallel(cor = "tet")
+
+
+ r_matrix_mt <- score_mt %>% sample_n(size = 1200) %>% tetrachoric
+ r_matrix_ch <- score_mt %>% sample_n(size = 1200) %>% tetrachoric
+ 
+ r_matrix_mt$rho %>% data.frame %>% 
+   add_rownames(var = "coditem1") %>% 
+   pivot_longer(cols = 2:46, names_to = "coditem2" ,values_to = "r") %>%
+    ggplot(
+      aes(x=r)
+      ) +
+    geom_histogram(
+      aes(y=..density..),
+      binwidth = .10,
+      color = "white", 
+      fill = "blue", 
+      alpha = .5
+      ) +
+    scale_x_continuous(
+      breaks = seq(0, 1, .1),
+      limits = c(0,1) 
+    ) +
+    scale_color_brewer(palette = "Set1") +
+    theme_minimal()
+ 
+
+  r_matrix_ch$rho %>% data.frame %>% 
+   add_rownames(var = "coditem1") %>% 
+   pivot_longer(cols = 2:46, names_to = "coditem2" ,values_to = "r") %>%
+    ggplot(
+      aes(x=r)
+      ) +
+    geom_histogram(
+      aes(y=..density..),
+      binwidth = .10,
+      color = "white", 
+      fill = "cyan", 
+      alpha = .5
+      ) +
+    scale_x_continuous(
+      breaks = seq(0, 1, .1),
+      limits = c(0,1) 
+    ) +
+    scale_color_brewer(palette = "Set1") +
+    theme_minimal()
+ 
+```
+
+```{r}
+
+r_matrix_mt$rho %>% data.frame %>% 
+   add_rownames(var = "coditem1") %>% 
+   pivot_longer(cols = 2:46, names_to = "coditem2" ,values_to = "r") %>% 
+  pull(r) %>% describe
+
+r_matrix_ch$rho %>% data.frame %>% 
+   add_rownames(var = "coditem1") %>% 
+   pivot_longer(cols = 2:46, names_to = "coditem2" ,values_to = "r") %>% 
+  pull(r) %>% describe
+
+r_matrix$rho %>% data.frame %>% 
+   add_rownames(var = "coditem1") %>% 
+   pivot_longer(cols = 2:17, names_to = "coditem2" ,values_to = "r") %>%
+   pull(r) %>% describe
+
+```
+- Análise de rasch no MIRT
+* Veja http://philchalmers.github.io/mirt/html/00Index.html
+```{r}
+
+ library(mirt)
+
+ mod1<- mirt(gf_matrix[ , 2:17], model = 1, TOL = .001, itemtype='Rasch')
+ summary(mod1)
+ 
+ coef(mod1 , simplify=TRUE, IRTpars=TRUE)
+ plot(mod1, type = 'trace', facet_items = FALSE)
+ 
+ itemplot(mod1, item = 3)
+ 
+  itemplot(mod1, item = 3, type=  "score")
+  itemplot(mod1, item = 3, type=  "infoSE")
+ 
+ 
+ itemfit(mod1, fit_stats = 'infit')
+ 
+ itemfit(mod1, empirical.plot=2)
+ itemfit(mod1, empirical.plot=16)
+ 
+ theta_se <- fscores(mod1,method = "WLE", full.scores.SE = TRUE)
+
+  empirical_rxx(theta_se)
+ 
+  
+  plot(mod1, type = 'rxx')
+
+ 
+ empirical_plot(gf_matrix[ , 2:17], c(1, 8, 16))
+ 
+ 
+ 
+```
+
