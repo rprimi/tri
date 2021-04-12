@@ -15,10 +15,14 @@ output:
 #### Exercicio 1. Análise de rasch com gf_matrix
 
 ```{r}
+<<<<<<< HEAD
 library(readxl)
 gf_matrix <- read_excel("gf_matrix.xlsx", range = "A2:R1184")
 
 getwd()
+=======
+gf_matrix <- read_excel("aulas_exercicios/gf_matrix.xlsx", range = "A2:R1184")
+>>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
 ```
 
 -   Calibrando o modelo de Rasch com TAM
@@ -34,6 +38,7 @@ getwd()
 
 ```{r}
  summary(mod1)
+<<<<<<< HEAD
  
 
  hist(mod1$WLE)
@@ -41,6 +46,10 @@ getwd()
  hist(mod1$xsi)
  
  plot(mod1$theta, mod1$WLE)
+=======
+ hist(mod1$WLE)
+ hist(mod1$xsi)
+>>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
 
 ```
 
@@ -53,6 +62,7 @@ fit$fit.item
 
 ```
 
+<<<<<<< HEAD
 -   Psicometria classica (como no último exercicio)
 
 ```{r}
@@ -64,6 +74,8 @@ fit$fit.item
  tct_gfmatrix %>% view
 ```
 
+=======
+>>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
 -   Visualizando as CCI's
 
 ```{r}
@@ -72,6 +84,15 @@ fit$fit.item
   
 ```
 
+<<<<<<< HEAD
+=======
+-   Psicometria classica (como no último exercicio)
+
+```{r}
+ library(CTT)
+ tct_gfmatrix <- CTT::reliability(as.data.frame(gf_matrix[ , 2:17]))
+```
+>>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
 
 -   Precisão Rasch
 
@@ -86,11 +107,15 @@ fit$fit.item
 ```{r}
 
 library(WrightMap)
+<<<<<<< HEAD
 WrightMap::wrightMap(
   thetas = mod1$theta, 
   thresholds = mod1$xsi, 
   new.quartz = TRUE
   )
+=======
+WrightMap::wrightMap(thetas = mod1$theta, thresholds = mod1$xsi, new.quartz = TRUE)
+>>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
 
 ```
 
@@ -128,6 +153,7 @@ WrightMap::wrightMap(
 
 ```{r }
 
+<<<<<<< HEAD
   load("../enem_2015.RData")
 
 ```
@@ -333,3 +359,7 @@ r_matrix$rho %>% data.frame %>%
  
 ```
 
+=======
+  load("enem_2015.RData")
+```
+>>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
