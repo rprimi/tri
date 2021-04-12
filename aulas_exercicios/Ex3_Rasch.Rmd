@@ -12,17 +12,22 @@ output:
   knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
+
+```{r}
+
+library(tidyverse)
+
+```
+
 #### Exercicio 1. Análise de rasch com gf_matrix
 
 ```{r}
-<<<<<<< HEAD
+
 library(readxl)
 gf_matrix <- read_excel("gf_matrix.xlsx", range = "A2:R1184")
 
-getwd()
-=======
 gf_matrix <- read_excel("aulas_exercicios/gf_matrix.xlsx", range = "A2:R1184")
->>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
+
 ```
 
 -   Calibrando o modelo de Rasch com TAM
@@ -38,7 +43,7 @@ gf_matrix <- read_excel("aulas_exercicios/gf_matrix.xlsx", range = "A2:R1184")
 
 ```{r}
  summary(mod1)
-<<<<<<< HEAD
+
  
 
  hist(mod1$WLE)
@@ -46,10 +51,10 @@ gf_matrix <- read_excel("aulas_exercicios/gf_matrix.xlsx", range = "A2:R1184")
  hist(mod1$xsi)
  
  plot(mod1$theta, mod1$WLE)
-=======
+
  hist(mod1$WLE)
  hist(mod1$xsi)
->>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
+
 
 ```
 
@@ -62,7 +67,6 @@ fit$fit.item
 
 ```
 
-<<<<<<< HEAD
 -   Psicometria classica (como no último exercicio)
 
 ```{r}
@@ -74,8 +78,7 @@ fit$fit.item
  tct_gfmatrix %>% view
 ```
 
-=======
->>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
+
 -   Visualizando as CCI's
 
 ```{r}
@@ -84,15 +87,13 @@ fit$fit.item
   
 ```
 
-<<<<<<< HEAD
-=======
 -   Psicometria classica (como no último exercicio)
 
 ```{r}
  library(CTT)
  tct_gfmatrix <- CTT::reliability(as.data.frame(gf_matrix[ , 2:17]))
 ```
->>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
+
 
 -   Precisão Rasch
 
@@ -107,15 +108,15 @@ fit$fit.item
 ```{r}
 
 library(WrightMap)
-<<<<<<< HEAD
+
 WrightMap::wrightMap(
   thetas = mod1$theta, 
   thresholds = mod1$xsi, 
   new.quartz = TRUE
   )
-=======
+
 WrightMap::wrightMap(thetas = mod1$theta, thresholds = mod1$xsi, new.quartz = TRUE)
->>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
+
 
 ```
 
@@ -153,8 +154,127 @@ WrightMap::wrightMap(thetas = mod1$theta, thresholds = mod1$xsi, new.quartz = TR
 
 ```{r }
 
-<<<<<<< HEAD
   load("../enem_2015.RData")
+
+ resp_mt[1:1000, ] %>% view
+ 
+  score_mt[1:1000, ] %>% view
+  gabMT
+  
+  names(gabMT)
+  
+ score_mt2 <- score_mt %>% sample_n(size = 10000) 
+
+
+```
+ 
+
+```{r}
+
+  library(TAM)
+  mod2 <- tam.jml(score_mt2)
+ 
+```
+
+-   Examinando os parâmetros
+
+```{r}
+ 
+ summary(mod2)
+
+ hist(mod2$WLE)
+ hist(mod2$theta)
+ hist(mod2$xsi)
+ 
+ plot(mod2$theta, mod2$WLE)
+
+
+```
+
+-   Índices de ajuste
+
+```{r}
+
+fit <- tam.jml.fit(mod2)
+fit$fit.item
+
+```
+
+-   Psicometria classica (como no último exercicio)
+
+```{r}
+ library(CTT)
+ tct_mt <- CTT::reliability(score_mt2)
+ 
+ itemAnalysis().
+ 
+ summary(tct_mt)
+ 
+ tct_mt %>% view
+ 
+ 
+```
+
+
+-   Visualizando as CCI's
+
+```{r}
+ 
+  plot(mod2, items = 23,  ngroups=10)
+  
+```
+
+
+-   Precisão Rasch
+
+```{r}
+
+  WLErel(mod2$WLE, mod2$errorWLE)
+ 
+```
+
+-   Mapa de itens e pessoas
+
+```{r}
+
+library(WrightMap)
+
+WrightMap::wrightMap(
+  thetas = mod2$theta, 
+  thresholds = mod2$xsi, 
+  new.quartz = TRUE
+  )
+
+WrightMap::wrightMap(thetas = mod1$theta, thresholds = mod1$xsi, new.quartz = TRUE)
+
+
+```
+
+-   Criando curvas empíricas
+
+```{r}
+ 
+  library(tidyverse)
+
+  dev.new()
+
+  gf_matrix %>% 
+    ggplot(aes(y = i03, x = Score)) + 
+    geom_smooth() + 
+    geom_point(
+      data = {
+         gf_matrix %>% select(i03, Score) %>%
+          group_by(Score) %>%
+          dplyr::summarise(i03 = mean(i03, na.rm=TRUE))
+         },
+      mapping = aes(y = i03, x = Score),
+      stat = "identity"
+      
+    ) + 
+    theme_light() 
+  
+  
+  
 
 ```
 
@@ -169,7 +289,7 @@ WrightMap::wrightMap(thetas = mod1$theta, thresholds = mod1$xsi, new.quartz = TR
 source("http://www.labape.com.br/rprimi/R/utils_construct_maps.R")
 library(RColorBrewer)
 
-
+dev.new()
 person_item_map_v3(
   item_tresh = mod1$xsi,                 
   coditem = names(gf_matrix)[2:17],   
@@ -190,7 +310,7 @@ person_item_map_v3(
   probs = c(.25, .50, .75)
  )
 
-
+summary(mod1)
 
 ```
 - Define identificação pela média de dificuldade dos itens igual a zero (semelhandte ao que o winsteps faz)
@@ -198,16 +318,36 @@ person_item_map_v3(
 ```{r}
 
 
- mod2 <- tam.jml(gf_matrix[ , 2:17], constraint="items")
- summary(mod2)
+ mod3 <- tam.jml(gf_matrix[ , 2:17], constraint="items")
+ summary(mod3)
  
  hist(mod1$WLE)
- hist(mod2$WLE)
+ hist(mod3$WLE)
  
  hist(mod1$xsi)
- hist(mod2$xsi)
+ hist(mod3$xsi)
  
  
+dev.new()
+person_item_map_v3(
+  item_tresh = mod3$xsi,                 
+  coditem = names(gf_matrix)[2:16],   
+  item_text=names(gf_matrix)[2:16], 
+  pole = rep(1, 15),  
+  theta = mod3$theta, 
+  min = -3, 
+  max = 3,
+  step = 1,
+  item_text_max = 28,
+  binwidth = .5,
+  size_categ_label = 3,
+  size_bar = 3,
+  categ_label = c("1", "2"),
+  categ_color = c("#DF4949", "#2B82C9"), 
+  intercept=0,
+  color_hist = "#2B82C9",
+  probs = c(.25, .50, .75)
+ )
  
 ```
 - Análide da dimensionalidade do teste gf
@@ -259,7 +399,7 @@ score_ch %>% sample_n(size = 1200) %>%
 
 
  r_matrix_mt <- score_mt %>% sample_n(size = 1200) %>% tetrachoric
- r_matrix_ch <- score_mt %>% sample_n(size = 1200) %>% tetrachoric
+ r_matrix_ch <- score_ch %>% sample_n(size = 1200) %>% tetrachoric
  
  r_matrix_mt$rho %>% data.frame %>% 
    add_rownames(var = "coditem1") %>% 
@@ -358,8 +498,3 @@ r_matrix$rho %>% data.frame %>%
  
  
 ```
-
-=======
-  load("enem_2015.RData")
-```
->>>>>>> 962ecc6d2ff63f018d46145f12f853471436eb14
