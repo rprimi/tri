@@ -12,10 +12,10 @@ output:
   knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
-
 ```{r}
 
 library(tidyverse)
+
 
 ```
 
@@ -44,7 +44,6 @@ gf_matrix <- read_excel("aulas_exercicios/gf_matrix.xlsx", range = "A2:R1184")
 ```{r}
  summary(mod1)
 
- 
 
  hist(mod1$WLE)
  hist(mod1$theta)
@@ -206,7 +205,6 @@ fit$fit.item
  library(CTT)
  tct_mt <- CTT::reliability(score_mt2)
  
- itemAnalysis().
  
  summary(tct_mt)
  
@@ -272,9 +270,7 @@ WrightMap::wrightMap(thetas = mod1$theta, thresholds = mod1$xsi, new.quartz = TR
       
     ) + 
     theme_light() 
-  
-  
-  
+
 
 ```
 
@@ -319,13 +315,17 @@ summary(mod1)
 
 
  mod3 <- tam.jml(gf_matrix[ , 2:17], constraint="items")
+
+mod3 <- tam.jml(gf_matrix[ , 2:17], constraint="items")
  summary(mod3)
  
+ mod3
  hist(mod1$WLE)
  hist(mod3$WLE)
  
  hist(mod1$xsi)
  hist(mod3$xsi)
+ mean(mod3$xsi)
  
  
 dev.new()
@@ -350,16 +350,57 @@ person_item_map_v3(
  )
  
 ```
+
+```{r}
+
+  mod4 <- tam.mml(gf_matrix[ , 2:17], constraint = "items")
+  summary(mod4)
+  
+  
+ 
+  hist(mod4$person$EAP)
+  hist(mod4$xsi$xsi)
+  mean(mod4$xsi$xsi)
+ 
+
+  des <- TAM::designMatrices(resp=gf_matrix[ , 2:17])
+    
+ 
+  A1 <- des$A[ , , - ncol(gf_matrix[ , 2:17]) ]
+  A1[ ncol(gf_matrix[ , 2:17]) , 2 , ] <- 1
+  A1[,2,]
+    
+  A1[,2,]
+  
+  # estimate model
+    
+  mod5 <- TAM::tam.mml( resp=gf_matrix[ , 2:17] , A=A1 , beta.fixed=FALSE ,
+               control=list(fac.oldxsi=.1) )
+    
+  summary(mod5)
+ 
+    hist(mod5$person$EAP)
+    hist(mod5$xsi$xsi)
+   mean(mod5$xsi$xsi)
+
+```
+
+
+
+
 - Análide da dimensionalidade do teste gf
 
 ```{r}
 
 library(psych)
 library(tidyverse)
-
- fa.parallel(gf_matrix[ , 2:17], cor = "tet", )
-
  r_matrix <- tetrachoric(gf_matrix[ , 2:17])
+
+ r_matrix$rho %>% view
+ 
+ 
+ fa.parallel(gf_matrix[ , 2:17], cor = "tet")
+
 
  r_matrix$rho %>% data.frame %>% 
    add_rownames(var = "coditem1") %>% 
@@ -381,8 +422,6 @@ library(tidyverse)
     scale_color_brewer(palette = "Set1") +
     theme_minimal()
 
- 
- 
 
 ```
 - Análide da dimensionalidade do ENEM (mat)
@@ -400,6 +439,10 @@ score_ch %>% sample_n(size = 1200) %>%
 
  r_matrix_mt <- score_mt %>% sample_n(size = 1200) %>% tetrachoric
  r_matrix_ch <- score_ch %>% sample_n(size = 1200) %>% tetrachoric
+ 
+ r_matrix_mt$rho %>% view
+ 
+ r_matrix_ch$rho %>% view
  
  r_matrix_mt$rho %>% data.frame %>% 
    add_rownames(var = "coditem1") %>% 
@@ -446,6 +489,7 @@ score_ch %>% sample_n(size = 1200) %>%
 
 ```{r}
 
+
 r_matrix_mt$rho %>% data.frame %>% 
    add_rownames(var = "coditem1") %>% 
    pivot_longer(cols = 2:46, names_to = "coditem2" ,values_to = "r") %>% 
@@ -461,6 +505,13 @@ r_matrix$rho %>% data.frame %>%
    pivot_longer(cols = 2:17, names_to = "coditem2" ,values_to = "r") %>%
    pull(r) %>% describe
 
+
+
+ fa_mt3 <-  fa(r_matrix_mt$rho, nfactors = 3, rotate = "promax", n.obs = 1200 )
+ 
+ print.psych(fa_mt3, digits = 2, sort = TRUE)
+ 
+
 ```
 - Análise de rasch no MIRT
 * Veja http://philchalmers.github.io/mirt/html/00Index.html
@@ -468,33 +519,44 @@ r_matrix$rho %>% data.frame %>%
 
  library(mirt)
 
- mod1<- mirt(gf_matrix[ , 2:17], model = 1, TOL = .001, itemtype='Rasch')
+ mod1 <- mirt(gf_matrix[ , 2:17], model = 1, TOL = .001, itemtype='Rasch')
  summary(mod1)
  
  coef(mod1 , simplify=TRUE, IRTpars=TRUE)
+ 
  plot(mod1, type = 'trace', facet_items = FALSE)
  
  itemplot(mod1, item = 3)
  
   itemplot(mod1, item = 3, type=  "score")
   itemplot(mod1, item = 3, type=  "infoSE")
- 
+  
+  plot(mod1, type = 'rxx')
  
  itemfit(mod1, fit_stats = 'infit')
  
  itemfit(mod1, empirical.plot=2)
  itemfit(mod1, empirical.plot=16)
  
- theta_se <- fscores(mod1,method = "WLE", full.scores.SE = TRUE)
+ theta_se <- fscores(mod1, method = "WLE", full.scores.SE = TRUE)
 
   empirical_rxx(theta_se)
  
   
-  plot(mod1, type = 'rxx')
-
- 
  empirical_plot(gf_matrix[ , 2:17], c(1, 8, 16))
  
  
  
 ```
+```{r}
+
+  mod2 <- score_mt %>% sample_n(size = 1200) %>%  
+  mirt(model = 1, TOL = .001, itemtype='Rasch')
+ 
+  summary(mod2)
+ 
+  plot(mod2, type = 'rxx')
+ 
+
+```
+
