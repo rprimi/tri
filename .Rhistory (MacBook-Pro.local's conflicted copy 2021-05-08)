@@ -1,0 +1,512 @@
+library(tidyverse)
+resp_mt[1:1000, ] %>% view
+gabMT
+names(gabMT)
+score_mt[1:1000, ] %>% view
+score_mt2 <- score_mt %>% sample_n(size = 10000)
+library(TAM)
+mod2 <- tam.jml(score_mt2)
+summary(mod2)
+hist(mod2$WLE)
+hist(mod2$theta)
+hist(mod2$xsi)
+summary(mod2)
+plot(mod1$theta, mod1$WLE)
+plot(mod2$theta, mod2$WLE)
+fit <- tam.jml.fit(mod2)
+fit$fit.item
+tct_mt <- CTT::reliability(score_mt2)
+?itemAnalysis().
+?itemAnalysis
+summary(tct_mt)
+tct_mt %>% view
+plot(mod2, items = 1:10,  ngroups=10)
+plot(mod2, items = 23,  ngroups=10)
+WLErel(mod2$WLE, mod2$errorWLE)
+mod2$errorWLE
+library(WrightMap)
+WrightMap::wrightMap(
+thetas = mod2$theta,
+thresholds = mod2$xsi,
+new.quartz = TRUE
+)
+mod1 <- tam.jml(gf_matrix[ , 2:17])
+source("http://www.labape.com.br/rprimi/R/utils_construct_maps.R")
+names(gf_matrix)[2:17]
+person_item_map_v3(
+item_tresh = mod1$xsi,
+coditem = names(gf_matrix)[2:17],
+item_text=names(gf_matrix)[2:17],
+pole = rep(1, 16),
+theta = mod1$theta,
+min = -3,
+max = 3,
+step = 1,
+item_text_max = 28,
+binwidth = .5,
+size_categ_label = 3,
+size_bar = 3,
+categ_label = c("1", "2"),
+categ_color = c("#DF4949", "#2B82C9"),
+intercept=0,
+color_hist = "#2B82C9",
+probs = c(.25, .50, .75)
+)
+library(RColorBrewer)
+person_item_map_v3(
+item_tresh = mod1$xsi,
+coditem = names(gf_matrix)[2:17],
+item_text=names(gf_matrix)[2:17],
+pole = rep(1, 16),
+theta = mod1$theta,
+min = -3,
+max = 3,
+step = 1,
+item_text_max = 28,
+binwidth = .5,
+size_categ_label = 3,
+size_bar = 3,
+categ_label = c("1", "2"),
+categ_color = c("#DF4949", "#2B82C9"),
+intercept=0,
+color_hist = "#2B82C9",
+probs = c(.25, .50, .75)
+)
+dev.new()
+person_item_map_v3(
+item_tresh = mod1$xsi,
+coditem = names(gf_matrix)[2:17],
+item_text=names(gf_matrix)[2:17],
+pole = rep(1, 16),
+theta = mod1$theta,
+min = -3,
+max = 3,
+step = 1,
+item_text_max = 28,
+binwidth = .5,
+size_categ_label = 3,
+size_bar = 3,
+categ_label = c("1", "2"),
+categ_color = c("#DF4949", "#2B82C9"),
+intercept=0,
+color_hist = "#2B82C9",
+probs = c(.25, .50, .75)
+)
+mod1
+summary(mod1)
+mod3 <- tam.jml(gf_matrix[ , 2:17], constraint="items")
+summary(mod3)
+dev.new()
+person_item_map_v3(
+item_tresh = mod1$xsi,
+coditem = names(gf_matrix)[2:17],
+item_text=names(gf_matrix)[2:17],
+pole = rep(1, 16),
+theta = mod1$theta,
+min = -3,
+max = 3,
+step = 1,
+item_text_max = 28,
+binwidth = .5,
+size_categ_label = 3,
+size_bar = 3,
+categ_label = c("1", "2"),
+categ_color = c("#DF4949", "#2B82C9"),
+intercept=0,
+color_hist = "#2B82C9",
+probs = c(.25, .50, .75)
+)
+dev.new()
+person_item_map_v3(
+item_tresh = mod3$xsi,
+coditem = names(gf_matrix)[2:17],
+item_text=names(gf_matrix)[2:17],
+pole = rep(1, 16),
+theta = mod3$theta,
+min = -3,
+max = 3,
+step = 1,
+item_text_max = 28,
+binwidth = .5,
+size_categ_label = 3,
+size_bar = 3,
+categ_label = c("1", "2"),
+categ_color = c("#DF4949", "#2B82C9"),
+intercept=0,
+color_hist = "#2B82C9",
+probs = c(.25, .50, .75)
+)
+mod3$xsi
+hist(mod1$WLE)
+hist(mod3$WLE)
+hist(mod1$xsi)
+hist(mod3$xsi)
+summary(mod3)
+mod3$item
+View(mod3)
+mod3[["item"]][["xsi.label"]]
+mod3$xsi
+dev.new()
+person_item_map_v3(
+item_tresh = mod3$xsi,
+coditem = names(gf_matrix)[2:16],
+item_text=names(gf_matrix)[2:16],
+pole = rep(1, 15),
+theta = mod3$theta,
+min = -3,
+max = 3,
+step = 1,
+item_text_max = 28,
+binwidth = .5,
+size_categ_label = 3,
+size_bar = 3,
+categ_label = c("1", "2"),
+categ_color = c("#DF4949", "#2B82C9"),
+intercept=0,
+color_hist = "#2B82C9",
+probs = c(.25, .50, .75)
+)
+r_matrix <- tetrachoric(gf_matrix[ , 2:17])
+library(psych)
+library(tidyverse)
+r_matrix <- tetrachoric(gf_matrix[ , 2:17])
+r_matrix$rho %>% data.frame %>%
+add_rownames(var = "coditem1") %>%
+pivot_longer(cols = 2:17, names_to = "coditem2" ,values_to = "r") %>%
+ggplot(
+aes(x=r)
+) +
+geom_histogram(
+aes(y=..density..),
+binwidth = .10,
+color = "white",
+fill = "red",
+alpha = .5
+) +
+scale_x_continuous(
+breaks = seq(0, 1, .1),
+limits = c(0,1)
+) +
+scale_color_brewer(palette = "Set1") +
+theme_minimal()
+r_matrix_mt <- score_mt %>% sample_n(size = 1200) %>% tetrachoric
+r_matrix_mt$rho %>% data.frame %>%
+add_rownames(var = "coditem1") %>%
+pivot_longer(cols = 2:46, names_to = "coditem2" ,values_to = "r") %>%
+ggplot(
+aes(x=r)
+) +
+geom_histogram(
+aes(y=..density..),
+binwidth = .10,
+color = "white",
+fill = "blue",
+alpha = .5
+) +
+scale_x_continuous(
+breaks = seq(0, 1, .1),
+limits = c(0,1)
+) +
+scale_color_brewer(palette = "Set1") +
+theme_minimal()
+r_matrix_ch <- score_mt %>% sample_n(size = 1200) %>% tetrachoric
+r_matrix_ch$rho %>% data.frame %>%
+add_rownames(var = "coditem1") %>%
+pivot_longer(cols = 2:46, names_to = "coditem2" ,values_to = "r") %>%
+ggplot(
+aes(x=r)
+) +
+geom_histogram(
+aes(y=..density..),
+binwidth = .10,
+color = "white",
+fill = "cyan",
+alpha = .5
+) +
+scale_x_continuous(
+breaks = seq(0, 1, .1),
+limits = c(0,1)
+) +
+scale_color_brewer(palette = "Set1") +
+theme_minimal()
+r_matrix_ch <- score_ch %>% sample_n(size = 1200) %>% tetrachoric
+r_matrix_mt$rho %>% data.frame %>%
+add_rownames(var = "coditem1") %>%
+pivot_longer(cols = 2:46, names_to = "coditem2" ,values_to = "r") %>%
+ggplot(
+aes(x=r)
+) +
+geom_histogram(
+aes(y=..density..),
+binwidth = .10,
+color = "white",
+fill = "blue",
+alpha = .5
+) +
+scale_x_continuous(
+breaks = seq(0, 1, .1),
+limits = c(0,1)
+) +
+scale_color_brewer(palette = "Set1") +
+theme_minimal()
+r_matrix_ch$rho %>% data.frame %>%
+add_rownames(var = "coditem1") %>%
+pivot_longer(cols = 2:46, names_to = "coditem2" ,values_to = "r") %>%
+ggplot(
+aes(x=r)
+) +
+geom_histogram(
+aes(y=..density..),
+binwidth = .10,
+color = "white",
+fill = "cyan",
+alpha = .5
+) +
+scale_x_continuous(
+breaks = seq(0, 1, .1),
+limits = c(0,1)
+) +
+scale_color_brewer(palette = "Set1") +
+theme_minimal()
+library(TAM)
+mod1 <- tam.jml(gf_matrix[ , 2:17])
+f <- function(th, b){
+p_th = exp(th - b) / ( 1 + exp(th - b))
+}
+library(tidyverse)
+df <- tibble(
+theta = seq(-3, 3, by=.01),
+)
+df$p <- f(df$theta, 0)
+View(df)
+ggplot(df, aes(y = p, x=th)) + geom_line(color = "red")
+ggplot(df, aes(y = p, x=theta)) + geom_line(color = "red")
+mary <- c(1,1,1,0,0)
+george <- c(0,1,1,0,1)
+f(th = 1, b = bs)
+mary <- c(1,1,1,0,0)
+george <- c(0,1,1,0,1)
+bs <- c(1, 2, 3, 4, 5)
+f(th = 1, b = bs)
+pred <- f(th = 1, b = bs)
+pred
+um_pred <- 1-pred
+pred*um_pred
+v <- pred*(1-pred)
+sum(pred)
+pred <- f(th = 3, b = bs)
+um_pred <- 1-pred
+pred*um_pred
+v <- pred*(1-pred)
+sum(pred)
+th0 = 3
+pred <- f(th = th0, b = bs)
+um_pred <- 1-pred
+pred*um_pred
+v <- pred*(1-pred)
+obs = sum(mary)
+exp = sum(pred)
+var <- pred*(1-pred)
+sum(var)
+b_t1 = b_t0 + ((obs - exp)/sum(var))
+th1 <- th0 + ((obs - exp)/sum(var))
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+library(tidyverse)
+library(readxl)
+gf_matrix <- read_excel("gf_matrix.xlsx", range = "A2:R1184")
+library(TAM)
+mod1 <- tam.jml(gf_matrix[ , 2:17])
+summary(mod1)
+mod4 <- tam.mml(gf_matrix[ , 2:17], constraint = "items")
+summary(mod4)
+hist(mod4$WLE)
+hist(mod4$person$EAP)
+hist(mod4$xsi)
+mod4$xsi
+hist(mod4$xsi$xsi)
+mean(mod4$xsi$xsi)
+des <- TAM::designMatrices(gf_matrix[ , 2:17])
+des <- TAM::designMatrices(resp=gf_matrix[ , 2:17])
+View(des)
+des$A[ , , - ncol(dat) ]
+ncol(gf_matrix[ , 2:17])
+A1 <- des$A[ , , - ncol(gf_matrix[ , 2:17]) ]
+A1[ ncol(gf_matrix[ , 2:17]) ,2 , ] <- 1
+A1[,2,]
+mod5 <- TAM::tam.mml( resp=gf_matrix[ , 2:17] , A=A1 , beta.fixed=FALSE ,
+control=list(fac.oldxsi=.1) )
+hist(mod5$person$EAP)
+hist(mod5$xsi$xsi)
+mean(mod5$xsi$xsi)
+mod3 <- tam.jml(gf_matrix[ , 2:17], constraint="items")
+summary(mod3)
+hist(mod3$WLE)
+hist(mod3$xsi)
+mean(mod3$xsi)
+mod3
+mod3 <- tam.jml(gf_matrix[ , 2:17], constraint="items")
+summary(mod3)
+des <- TAM::designMatrices(resp=gf_matrix[ , 2:17])
+des
+des$A
+ncol(gf_matrix[ , 2:17])
+- ncol(gf_matrix[ , 2:17])
+des$A[ , , - ncol(gf_matrix[ , 2:17]) ]
+A1 <- des$A[ , , - ncol(gf_matrix[ , 2:17]) ]
+A1[ ncol(gf_matrix[ , 2:17]) , 2 , ] <- 1
+A1[,2,]
+A1
+A1[,2,]
+A1[,1,]
+A1[,2,]
+summary(mod5)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+library(tidyverse)
+f <- function(th, b){
+p_th = exp(th - b) / ( 1 + exp(th - b))
+p_th
+}
+f(th=-1, b=1)
+df <- tibble(
+theta = seq(-3, 3, by=.01),
+)
+df$p <- f(th = df$theta, b = 0)
+ggplot(df, aes(y = p, x=theta)) + geom_line(color = "red")
+th0 = 3
+pred <- f(th = th0, b = bs)
+mary <- c(1,1,1,0,0)
+george <- c(0,1,1,0,1)
+bs <- c(1, 2, 3, 4, 5)
+th0 = 3
+pred <- f(th = th0, b = bs)
+e0 <- sum(pred)
+e0
+round(pred, 2)
+th0 = 3
+pred <- f(th = th0, b = bs)
+round(pred, 2)
+e0 <- sum(pred)
+e0
+th1 = 4
+pred <- f(th = th1, b = bs)
+round(pred, 2)
+e1 <- sum(pred)
+e1
+ob <- sum(mary)
+ob
+ob-e0
+th1 = 4
+pred <- f(th = th1, b = bs)
+round(pred, 2)
+e1 <- sum(pred)
+ob-e1
+mary <- c(1,1,1,0,0)
+george <- c(0,1,1,0,1)
+bs <- c(1, 2, 3, 4, 5)
+obs <- sum(mary)
+th0 = 3
+pred <- f(th = th0, b = bs)
+f <- function(th, b){
+p_th = exp(th - b) / ( 1 + exp(th - b))
+p_th
+}
+df <- tibble(
+theta = seq(-3, 3, by=.01),
+)
+df$p <- f(th = df$theta, b = 0)
+ggplot(df, aes(y = p, x=theta)) + geom_line(color = "red")
+th0 = 3
+pred <- f(th = th0, b = bs)
+round(pred, 2)
+esp0 <- sum(pred)
+obs-esp0
+th1 = 4
+pred <- f(th = th1, b = bs)
+round(pred, 2)
+esp1 <- sum(pred)
+obs-esp1
+th0 = 3
+pred <- f(th = th0, b = bs)
+um_menos_p <- 1-pred
+pred*um_menos_p
+th0 = 3
+pred <- f(th = th0, b = bs)
+esp0 <- sum(pred)
+um_menos_p <- 1-pred
+pred*um_menos_p
+var <- pred*(1-pred)
+esp0 <- sum(pred)
+th1 <- th0 + ((obs - exp0)/sum(var))
+th1 <- th0 + ((obs - esp0)/sum(var))
+pred <- f(th = th1, b = bs)
+esp1 <- sum(pred)
+pred <- f(th = th1, b = bs)
+esp1 <- sum(pred)
+th2 <- th1 + ((obs - esp1)/sum(var))
+pred <- f(th = th2, b = bs)
+esp2<- sum(pred)
+th3 <- th2 + ((obs - esp2)/sum(var))
+esp2 -obs
+round(esp2 -obs, 4)
+round(esp2 -obs, 10)
+round(esp2 - obs) < 0.001
+mary[1]
+pred**mary[1]
+pred**mary
+mary
+pred**mary
+((1-pred)**mary)
+((1-pred)**(1-mary))
+(pred**mary) * ((1-pred)**(1-mary))
+((1-pred)**(1-mary))
+(pred**mary)
+((1-pred)**(1-mary))
+(pred**mary) * ((1-pred)**(1-mary))
+prod((pred**mary) * ((1-pred)**(1-mary)))
+verossim <- function(theta, vetor_resp, bs){
+pred <- f(th = theta, b = bs)
+p_vetor = prod((pred**vetor_resp) * ((1-pred)**(1-vetor_resp)))
+return(p_vetor)
+}
+verossim(theta=1, vetor_resp=mary, bs=bs)
+verossim(theta=2, vetor_resp=mary, bs=bs)
+verossim(theta=3, vetor_resp=mary, bs=bs)
+verossim(theta=4, vetor_resp=mary, bs=bs)
+verossim(theta=5, vetor_resp=mary, bs=bs)
+verossim(theta=1, vetor_resp=george, bs=bs)
+verossim(theta=2, vetor_resp=george, bs=bs)
+verossim(theta=3, vetor_resp=george, bs=bs)
+verossim(theta=4, vetor_resp=george, bs=bs)
+verossim(theta=5, vetor_resp=george, bs=bs)
+df <- tibble(
+th = 1:5,
+veross1 = verossim(theta=th, vetor_resp=mary, bs=bs)
+)
+View(df)
+df <- tibble(
+theta = seq(-3, 3, by=.01),
+)
+df %>% df %>%
+mutate(
+mary_veross = verossim(theta=th, vetor_resp=mary, bs=bs),
+george_veross = verossim(theta=th, vetor_resp=george, bs=bs)
+)
+df <- df %>%
+mutate(
+mary_veross = verossim(theta=th, vetor_resp=mary, bs=bs),
+george_veross = verossim(theta=th, vetor_resp=george, bs=bs)
+)
+View(df)
+df <- df %>%
+mutate(
+mary_veross = verossim(theta=theta, vetor_resp=mary, bs=bs),
+george_veross = verossim(theta=theta, vetor_resp=george, bs=bs)
+)
+df$mary_veross  <- apply(df, MARGIN = 1, function(x){verossim(theta=x, vetor_resp=mary, bs=bs)})
+View(df)
+df <- tibble(
+theta = seq(-3, 3, by=.01),
+)
+df$mary_veross  <- apply(df, MARGIN = 1, function(x){verossim(theta=x$theta, vetor_resp=mary, bs=bs)})
+df$mary_veross  <- apply(df, MARGIN = 1, function(x){verossim(theta=x["theta"], vetor_resp=mary, bs=bs)})
+View(df)

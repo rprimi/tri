@@ -1,0 +1,212 @@
+---
+title: Calibração do modelo de 2 e 3 parâmetros
+author: "Ricardo Primi"
+date: "10 de maio de 2021"
+output: 
+  html_document: 
+    highlight: textmate
+    theme: paper
+---
+
+
+```{r global_options, include=FALSE}
+  knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+##### Abre banco
+* Faça o dwonload do arquivo de http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/enem_2015.RData
+
+```{r }
+
+  load("ex2/enem_2015.RData")
+
+```
+
+##### Calibrando o modelo de Rasch
+
+```{r}
+
+  library(TAM)
+
+  mod1 <- tam.mml(score_mt)
+  summary(mod1)
+  
+  plot(mod1, items = 1:8,  ngroups=10)
+  
+  hist(mod1$person$EAP)
+  hist(mod1$xsi$xsi)
+  
+  fit <- tam.fit(mod1)
+
+  fit$itemfit
+
+ 
+```
+##### Calibrando o modelo de dois parâmetros
+
+```{r}
+
+ mod2 <- tam.mml.2pl(score_mt, irtmodel = "2PL")
+  summary(mod2)
+  
+  plot(mod2, items = 1:8,  ngroups=10)
+  
+  hist(mod2$person$EAP)
+  hist(mod2$xsi$xsi)
+  
+  fit <- tam.fit(mod2)
+
+  fit$itemfit
+  
+
+```
+##### Calibrando o modelo de três parâmetros
+
+
+```{r}
+ 
+mod3 <- tam.mml.3pl(
+  score_mt, 
+  control = list(maxiter=200, conv = .001), 
+  est.guess = 1:ncol(score_mt), 
+  guess= rep(.20, ncol(score_mt) )
+  )
+  summary(mod3)
+ 
+  
+  hist(mod3$person$EAP)
+  hist(mod3$xsi$xsi)
+  
+  library(CDM)
+  CDM::IRT.irfprobPlot(mod3, items = c(1:10))
+ 
+ 
+```
+
+
+##### Correlacionando 1, 2, e 3 parâmetros a partir dos resultados do TAM
+```{r}
+
+library(tidyverse)
+
+ df <- tibble(
+   scr = mod1$person$score, 
+   eap1 = mod1$person$EAP,
+   eap2 = mod2$person$EAP,
+   eap3 = mod3$person$EAP
+   )
+
+ df %>% ggplot(aes(y = eap1, x = scr, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
+
+  df %>% ggplot(aes(y = eap2, x = scr, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
+  
+  df %>% ggplot(aes(y = eap3, x = scr, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
+  
+  library(psych)
+  corr.test(df )
+  
+  
+```
+
+##### Calibrações usando o MIRT
+
+###### Rasch
+
+* Veja http://philchalmers.github.io/mirt/html/00Index.html
+```{r}
+
+ library(mirt)
+ mod1<- mirt(score_mt, model = 1, TOL = .001, itemtype='Rasch')
+ summary(mod1)
+ coef(mod1 , simplify=TRUE, IRTpars=TRUE)
+ plot(mod1, type = 'trace', facet_items = FALSE)
+ 
+ itemfit(mod1, fit_stats = 'infit')
+ 
+ itemfit(mod1, empirical.plot=3)
+  itemfit(mod1, empirical.plot=41)
+ 
+ 
+```
+###### Dois parâmetros
+```{r}
+ mod2<- mirt(score_mt, model = 1, TOL = .001, itemtype='2PL')
+ summary(mod2)
+ coef(mod2 , simplify=TRUE, IRTpars=TRUE)
+  plot(mod2,  type = 'trace', facet_items = FALSE)
+ 
+ itemfit(mod2)
+ 
+ itemfit(mod2, empirical.plot=5)
+ 
+ itemfit(mod2, empirical.plot=3)
+ itemfit(mod2, empirical.plot=41)
+ 
+ 
+```
+
+###### Três parâmetros
+```{r}
+ 
+  mod3<- mirt(score_mt, model = 1, TOL = .001, itemtype='3PL')
+ summary(mod3)
+ coef(mod3 , simplify=TRUE, IRTpars=TRUE)
+  plot(mod3,  type = 'trace', facet_items = FALSE)
+ 
+ itemfit(mod3)
+ 
+ itemfit(mod3, empirical.plot=5)
+ 
+ itemfit(mod3, empirical.plot=3)
+ itemfit(mod3, empirical.plot=41)
+ 
+ 
+```
+
+##### Correlacionando 1, 2, e 3 parâmetros a partir dos resultados do mirt e TAM
+
+```{r}
+
+ df <- cbind( df, 
+   eap1b = fscores(mod1, method = "EAP")[, 1],
+   eap2b = fscores(mod2, method = "EAP")[, 1],
+   eap3b = fscores(mod3, method = "EAP")[, 1]
+ )
+ 
+  corr.test(df )
+
+
+ df %>% ggplot(aes(y = eap1b, x = scr, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
+
+  df %>% ggplot(aes(y = eap2b, x = scr, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
+  
+  df %>% ggplot(aes(y = eap3b, x = scr, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
+  
+  
+  
+   df %>% ggplot(aes(y = eap1, x = eap1b, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
+
+  df %>% ggplot(aes(y = eap2b, x = eap2, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
+  
+  df %>% ggplot(aes(y = eap3b, x = eap3, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
+  
+  
+  
+ 
+```
+
+##### Tente você
+
+* Faça as mesmas análises com a prova de ciências humanas 
+
+
+
