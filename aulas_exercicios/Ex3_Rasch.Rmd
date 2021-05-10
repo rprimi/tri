@@ -172,7 +172,7 @@ WrightMap::wrightMap(thetas = mod1$theta, thresholds = mod1$xsi, new.quartz = TR
 
   library(TAM)
   mod2 <- tam.jml(score_mt2)
- 
+  summary(mod2)
 ```
 
 -   Examinando os parâmetros
@@ -309,6 +309,7 @@ person_item_map_v3(
 summary(mod1)
 
 ```
+
 - Define identificação pela média de dificuldade dos itens igual a zero (semelhandte ao que o winsteps faz)
 
 ```{r}
@@ -350,8 +351,36 @@ person_item_map_v3(
  )
  
 ```
+```{r}
+  des <- TAM::designMatrices(resp=gf_matrix[ , 2:17])
+  
+  A1 <- des$A[ , , - ncol(gf_matrix[ , 2:17]) ]
+  A1[ ncol(gf_matrix[ , 2:17]) , 2 , ] <- 1
+  A1[,2,]
+    
+  A1[,2,]
+  
+  # estimate model
+    
+  mod5 <- TAM::tam.mml(
+    resp=gf_matrix[ , 2:17], 
+    A=A1, 
+    beta.fixed=FALSE ,
+    control=list(fac.oldxsi=.1)
+    )
+    
+  summary(mod5)
+
+
+
+```
 
 ```{r}
+
+  
+
+
+
 
   mod4 <- tam.mml(gf_matrix[ , 2:17], constraint = "items")
   summary(mod4)
@@ -363,21 +392,7 @@ person_item_map_v3(
   mean(mod4$xsi$xsi)
  
 
-  des <- TAM::designMatrices(resp=gf_matrix[ , 2:17])
-    
- 
-  A1 <- des$A[ , , - ncol(gf_matrix[ , 2:17]) ]
-  A1[ ncol(gf_matrix[ , 2:17]) , 2 , ] <- 1
-  A1[,2,]
-    
-  A1[,2,]
   
-  # estimate model
-    
-  mod5 <- TAM::tam.mml( resp=gf_matrix[ , 2:17] , A=A1 , beta.fixed=FALSE ,
-               control=list(fac.oldxsi=.1) )
-    
-  summary(mod5)
  
     hist(mod5$person$EAP)
     hist(mod5$xsi$xsi)
@@ -484,6 +499,9 @@ score_ch %>% sample_n(size = 1200) %>%
     ) +
     scale_color_brewer(palette = "Set1") +
     theme_minimal()
+  
+  
+  r_matrix_mt[["tau"]] %>% view
  
 ```
 

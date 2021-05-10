@@ -87,12 +87,17 @@ Ver link: https://www.youtube.com/watch?v=LvE8npeSjZ0&t=680s
   th0 = 3
   pred <- f(th = th0, b = bs)
   esp0 <- sum(pred)
- 
   
   um_menos_p <- 1-pred
   pred*um_menos_p
   
+  pq q = 1-p
+  
+  pred
+  1-pred
+  
   var <- pred*(1-pred)
+  
   esp0 <- sum(pred)
   
   th1 <- th0 + ((obs - esp0)/sum(var))
@@ -117,18 +122,32 @@ Ver link: https://www.youtube.com/watch?v=LvE8npeSjZ0&t=680s
 
   (esp2 - obs) 
   
+  round((esp2 - obs), 2)
+  
 ```
 
 #### Metodo de Máxima Verosimilhança - Maximum Likelihood (ML)
 
 * Calculo da verossimilhança 
 ```{r}
- 
+  
+   pred <- f(th = th3, b = bs)
+   mary
+   round(pred, 2)
+   round(1 - pred, 2)
+
+
   (pred**mary)
   ((1-pred)**(1-mary))
-  (pred**mary) * ((1-pred)**(1-mary))
+   
+   pred
+   mary
+   (pred**mary)
+   (1-pred)**(1-mary)
+   
+   (pred**mary) * ((1-pred)**(1-mary))
   
-  prod((pred**mary) * ((1-pred)**(1-mary)))
+  prod( (pred**mary) * ((1-pred)**(1-mary)) )
   
   
   
@@ -137,24 +156,25 @@ Ver link: https://www.youtube.com/watch?v=LvE8npeSjZ0&t=680s
 ```{r}
 
 verossim <- function(theta, vetor_resp, bs){
+  
    pred <- f(th = theta, b = bs)
    p_vetor = prod((pred**vetor_resp) * ((1-pred)**(1-vetor_resp)))
   
    return(p_vetor)
 }
-
-verossim(theta=1, vetor_resp=mary, bs=bs)
-verossim(theta=2, vetor_resp=mary, bs=bs)
-verossim(theta=3, vetor_resp=mary, bs=bs)
-verossim(theta=4, vetor_resp=mary, bs=bs)
-verossim(theta=5, vetor_resp=mary, bs=bs)
-
-
-verossim(theta=1, vetor_resp=george, bs=bs)
-verossim(theta=2, vetor_resp=george, bs=bs)
-verossim(theta=3, vetor_resp=george, bs=bs)
-verossim(theta=4, vetor_resp=george, bs=bs)
-verossim(theta=5, vetor_resp=george, bs=bs)
+  
+  verossim(theta=1, vetor_resp=mary, bs=bs)
+  verossim(theta=2, vetor_resp=mary, bs=bs)
+  verossim(theta=3, vetor_resp=mary, bs=bs)
+  verossim(theta=4, vetor_resp=mary, bs=bs)
+  verossim(theta=5, vetor_resp=mary, bs=bs)
+  
+  
+  verossim(theta=1, vetor_resp=george, bs=bs)
+  verossim(theta=2, vetor_resp=george, bs=bs)
+  verossim(theta=3, vetor_resp=george, bs=bs)
+  verossim(theta=4, vetor_resp=george, bs=bs)
+  verossim(theta=5, vetor_resp=george, bs=bs)
 
  
   df <- tibble(
@@ -162,10 +182,17 @@ verossim(theta=5, vetor_resp=george, bs=bs)
   )
 
 
-df$mary_veross  <- apply(df, MARGIN = 1, function(x){verossim(theta=x["theta"], vetor_resp=mary, bs=bs)})
+df$mary_veross  <- apply(
+  df, 
+  MARGIN = 1, 
+  function(x){verossim(theta=x["theta"], vetor_resp=mary, bs=bs)}
+  )
 
 
-df$george_veross  <- apply(df, MARGIN = 1, function(x){verossim(theta=x["theta"], vetor_resp=george, bs=bs)})
+df$george_veross  <- apply(
+  df, 
+  MARGIN = 1, function(x){verossim(theta=x["theta"], vetor_resp=george,bs=bs)}
+  )
 
 
  ggplot(df, aes(y = mary_veross, x=theta)) + geom_line(color = "blue")
@@ -177,21 +204,23 @@ df$george_veross  <- apply(df, MARGIN = 1, function(x){verossim(theta=x["theta"]
 
 ```
 
-* A função de maxima verossimilhança!
+* A função de maxima verossimilhança! ML
 * Derivadas: https://www.desmos.com/calculator/p6zuigdaqf
 
 
 ```{r}
 
-df %>% pivot_longer(cols = 2:3, names_to = "pessoa", values_to = "veross") %>%
+df %>% 
+  pivot_longer(cols = 2:3, names_to = "pessoa", values_to = "veross") %>%
   ggplot(aes(y = veross, x=theta, color = pessoa)) + geom_line()
 
 ```
 
-### Outfit(outlier-sensitive fit)
+### Outfit (outlier-sensitive fit)
 https://www.rasch.org/rmt/rmt162f.htm
 
 * Resíduos padronizados
+
 * X^2 = (obs - exp)^2 / sd^2 
 * X^2 = (obs - exp)^2 / var 
 
@@ -199,17 +228,29 @@ https://www.rasch.org/rmt/rmt162f.htm
 * outfit = sum(X^2)
 
 ```{r}
+  
   pred <- f(th = th3, b = bs)
   
   mary
   pred
   variance <- pred*(1-pred)
+  variance
   
- outfit_mary =  sum( (mary - pred)**2 / variance ) / length(mary)
- outfit_george =  sum( (george - pred)**2 / variance ) / length(george) 
+  outfit_mary =  sum( (mary - pred)**2 / variance ) / length(mary)
+  
+  george
+  pred
+  (george - pred)
+  
+  outfit_george =  sum( (george - pred)**2 / variance ) / length(george) 
+  
+  sum( (george - pred)**2 / variance )
+  (george - pred)**2 / variance
   
  # igual ao vídeo
- sum(round( (george - pred)**2, 2) / round(variance, 2)) 
+  sum(round( (george - pred)**2, 2) / round(variance, 2)) 
+ 
+ 
 ```
 
 ### Infit (inlier-sensitive or information-weighted fit)
@@ -219,10 +260,11 @@ infit = sum( (obs - exp)^2 ) / sum(var)
 ```{r}
 
  infit_mary =  ( sum( (mary - pred)**2 ) / sum(variance ) ) 
- infit_george =   ( sum( (george - pred)**2 ) / sum(variance ) ) 
+ infit_george = ( sum( (george - pred)**2 ) / sum(variance ) ) 
 
 ```
 
+* 0 - 1 - (1.3 a 1.4) 1.5  - 2 
 
 ### Expected a posteriori (EAP)
 
