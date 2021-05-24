@@ -36,12 +36,9 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
     -   Dados gf_matrix [gf_matrix.xlsx](http://www.labape.com.br/rprimi/TRI/2017_exercicios/gf_matrix.xlsx)
 
-
         -   Primi, R. (2014, April 28). Developing a Fluid Intelligence Scale Through a Combination of Rasch Modeling and Cognitive Psychology. Psychological Assessment. [http://dx.doi.org/10.1037/a0036712](http://www.labape.com.br/rprimi/TRI/Textos/Developing%20a%20Fluid%20Intelligence%20Scale%20Through%20a%20Combination%20of%20Rasch%20Modeling%20and%20Cognitive%20Psychology%20final.pdf)
 
-        -   Primi, R. (2014, April 28). Developing a Fluid Intelligence Scale Through a Combination of
-            Rasch Modeling and Cognitive Psychology. Psychological Assessment. [http://dx.doi.org/10.1037/a0036712](http://www.labape.com.br/rprimi/TRI/Textos/Developing%20a%20Fluid%20Intelligence%20Scale%20Through%20a%20Combination%20of%20Rasch%20Modeling%20and%20Cognitive%20Psychology%20final.pdf)
-
+        -   Primi, R. (2014, April 28). Developing a Fluid Intelligence Scale Through a Combination of Rasch Modeling and Cognitive Psychology. Psychological Assessment. [http://dx.doi.org/10.1037/a0036712](http://www.labape.com.br/rprimi/TRI/Textos/Developing%20a%20Fluid%20Intelligence%20Scale%20Through%20a%20Combination%20of%20Rasch%20Modeling%20and%20Cognitive%20Psychology%20final.pdf)
 
     -   Dados enem [enem_2015.RData] <http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/enem_2015.RData>)
 
@@ -60,5 +57,3 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 -   Slides: [http://www.labape.com.br/primi/TRI/a6_2\_3_param.pdf](http://www.labape.com.br/rprimi/TRI/a6_2_3_param.pdf)
 
 -   Exercício 4: [Ex5_2PL_3PL.Rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Ex5_2PL_3PL.Rmd)
-
-
