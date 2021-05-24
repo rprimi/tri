@@ -8,27 +8,39 @@ output:
     theme: paper
 ---
 
-
 ```{r global_options, include=FALSE}
   knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
-##### Abre banco
-* Faça o dwonload do arquivo de http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/enem_2015.RData
+### Abre banco
+
+-   Faça o dwonload do arquivo de <http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/enem_2015.RData>
 
 ```{r }
 
-  load("ex2/enem_2015.RData")
+  load("../enem_2015.RData")
 
 ```
 
-##### Calibrando o modelo de Rasch
+-   Bibliotecas
 
 ```{r}
-
   library(TAM)
+  library(tidyverse)
+  library(mirt)
+  library(skimr)
+  library(sjmisc)
+```
 
-  mod1 <- tam.mml(score_mt)
+### Calibrando o modelo de Rasch
+
+```{r}
+  
+  score_mt2 <- score_mt %>% slice_sample(n = 20000)
+
+rownames(score_mt2)
+
+  mod1 <- tam.mml(score_mt2)
   summary(mod1)
   
   plot(mod1, items = 1:8,  ngroups=10)
@@ -38,56 +50,79 @@ output:
   
   fit <- tam.fit(mod1)
 
-  fit$itemfit
+  fit$itemfit %>% view
 
  
 ```
-##### Calibrando o modelo de dois parâmetros
+
+### Calibrando o modelo de dois parâmetros
 
 ```{r}
 
- mod2 <- tam.mml.2pl(score_mt, irtmodel = "2PL")
+dev.new()
+
+  mod2 <- tam.mml.2pl(score_mt2, irtmodel = "2PL")
   summary(mod2)
   
-  plot(mod2, items = 1:8,  ngroups=10)
+  dev.new()
+  plot(mod2, items = 10,  ngroups=10)
   
+  dev.new()
+  plot(mod2, items = 14,  ngroups=10)
+  
+  dev.new()
+  plot(mod2, items = 23,  ngroups=10)
+  
+  dev.new()
+  plot(mod2, items = 35,  ngroups=10)
+  
+ 
   hist(mod2$person$EAP)
   hist(mod2$xsi$xsi)
   
   fit <- tam.fit(mod2)
 
-  fit$itemfit
+  mod2$item_irt %>% view
+  
+  fit$itemfit  %>% view
+  
+  
   
 
 ```
-##### Calibrando o modelo de três parâmetros
 
+### Calibrando o modelo de três parâmetros
 
 ```{r}
- 
-mod3 <- tam.mml.3pl(
-  score_mt, 
-  control = list(maxiter=200, conv = .001), 
-  est.guess = 1:ncol(score_mt), 
-  guess= rep(.20, ncol(score_mt) )
-  )
+   
+  mod3 <- tam.mml.3pl(
+    score_mt2, 
+    control = list(maxiter=200, conv = .001), 
+    est.guess = 1:ncol(score_mt2), 
+    guess= rep(.20, ncol(score_mt2) )
+    )
+
+
   summary(mod3)
  
+  mod3$item_irt %>% view
   
   hist(mod3$person$EAP)
   hist(mod3$xsi$xsi)
   
+  
   library(CDM)
-  CDM::IRT.irfprobPlot(mod3, items = c(1:10))
+  CDM::IRT.irfprobPlot(mod3, items = c(4, 10, 23))
+  
+  dev.new()
+  plot(mod3, items = 4, ngroups=20)
  
  
 ```
 
+### Correlacionando 1, 2, e 3 parâmetros a partir dos resultados do TAM
 
-##### Correlacionando 1, 2, e 3 parâmetros a partir dos resultados do TAM
 ```{r}
-
-library(tidyverse)
 
  df <- tibble(
    scr = mod1$person$score, 
@@ -96,7 +131,10 @@ library(tidyverse)
    eap3 = mod3$person$EAP
    )
 
- df %>% ggplot(aes(y = eap1, x = scr, color = scr)) +
+ library(psych)
+  corr.test(df )
+
+  df %>% ggplot(aes(y = eap1, x = scr, color = scr)) +
    geom_point(alpha=.2) + theme_light() + geom_smooth()
 
   df %>% ggplot(aes(y = eap2, x = scr, color = scr)) +
@@ -105,58 +143,183 @@ library(tidyverse)
   df %>% ggplot(aes(y = eap3, x = scr, color = scr)) +
    geom_point(alpha=.2) + theme_light() + geom_smooth()
   
-  library(psych)
-  corr.test(df )
+ 
+  df %>% ggplot(aes(y = eap1, x = eap2, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
   
+   df %>% ggplot(aes(y = eap3, x = eap1, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
+   
+     df %>% ggplot(aes(y = eap2, x = eap3, color = scr)) +
+   geom_point(alpha=.2) + theme_light() + geom_smooth()
   
 ```
 
-##### Calibrações usando o MIRT
+### Calibrações usando o MIRT
 
-###### Rasch
+-   Veja <http://philchalmers.github.io/mirt/html/00Index.html>
 
-* Veja http://philchalmers.github.io/mirt/html/00Index.html
+### Rasch no MIRT
+
+$P(x = 1|θ, d) = \frac{1}{1 + exp(-(θ + d))}$
+
+-   Veja <https://philchalmers.github.io/mirt/html/Three-Rasch.html>
+
+* Fixed slope set to 1
+
 ```{r}
 
- library(mirt)
- mod1<- mirt(score_mt, model = 1, TOL = .001, itemtype='Rasch')
+ mod1 <- mirt(score_mt2, model = 1, TOL = .001, itemtype='Rasch')
  summary(mod1)
- coef(mod1 , simplify=TRUE, IRTpars=TRUE)
- plot(mod1, type = 'trace', facet_items = FALSE)
+ 
+ coef(mod1 , simplify=TRUE) %>% view
+ coef(mod1 , simplify=TRUE, IRTpars=TRUE) %>% view
+ 
+ plot(mod1, type = 'trace', facet_items = TRUE)
  
  itemfit(mod1, fit_stats = 'infit')
  
  itemfit(mod1, empirical.plot=3)
-  itemfit(mod1, empirical.plot=41)
+ itemfit(mod1, empirical.plot=41)
  
+ theta1a <-  mirt::fscores(mod1, method = "ML")
  
-```
-###### Dois parâmetros
-```{r}
- mod2<- mirt(score_mt, model = 1, TOL = .001, itemtype='2PL')
- summary(mod2)
- coef(mod2 , simplify=TRUE, IRTpars=TRUE)
-  plot(mod2,  type = 'trace', facet_items = FALSE)
- 
- itemfit(mod2)
- 
- itemfit(mod2, empirical.plot=5)
- 
- itemfit(mod2, empirical.plot=3)
- itemfit(mod2, empirical.plot=41)
+ skim(theta1a)
+  
+ !is.infinite(theta1a) %>% frq
+  skim(theta1a[!is.infinite(theta1a)])
+  
+  # parâmetros
+  parms1 <-  mirt(
+    score_mt2, 
+    model = 1, TOL = .001, 
+    itemtype='Rasch', 
+    pars = 'values'
+        ) 
+  
+ 0.579**2
  
  
 ```
 
-###### Três parâmetros
+* Freely estimate slope parameters but constrain them to be equal across all items
+
+
+```{r}
+
+ m1 <- mirt.model(
+   'Theta = 1-45
+    CONSTRAIN = (1-45, a1)'
+   )
+ parms1b <-  mirt(score_mt2, model = m1, TOL = .001, pars = 'values') 
+
+ mod1b <- mirt(score_mt2, model = m1, TOL = .001)
+ summary(mod1b)
+ summary(mod1)
+ 
+ coef(mod1b , simplify=TRUE, IRTpars=TRUE) %>% view
+
+ theta1b <-  mirt::fscores(mod1b, method = "ML")
+ 
+ skim(theta1b[!is.infinite(theta1b)])
+ 
+ hist(theta1a, at = seq(-4, 4, .5), xlim = c(-4,4))
+ hist(theta1b, at = seq(-4, 4, .5), xlim = c(-4,4))
+ 
+ 
+
+ 
+```
+
+* Fix slopes to 1, center intercept mean = 0
+```{r}
+
+  #constraint: create function for solnp to compute constraint, and declare value in eqB
+  
+  eqfun <- function(p, optim_args) sum(p[1:45]) 
+  solnp_args <- list(eqfun=eqfun, eqB=0, LB = c(rep(-15, 46), 1e-4))
+
+  m2 <- mirt.model(
+   'Theta = 1-45
+    MEAN = Theta
+    COV = Theta*Theta'
+   )
+
+ mod1c <- mirt(
+   score_mt2, 
+   model = m2,  
+   TOL = .001, 
+   itemtype = "Rasch",
+   optimizer = 'solnp', 
+   solnp_args=solnp_args
+   )
+ 
+ summary(mod1c)
+ 
+ ipars <- coef(mod1c , simplify=TRUE, IRTpars=TRUE)
+ 
+ round(mean(ipars$items[, 2]), 4)
+
+ 
+ theta1c<-  mirt::fscores(mod1c, method = "ML")
+ skim(theta1b[!is.infinite(theta1c)])
+ 
+ hist(theta1a, at = seq(-4, 4, .5), xlim = c(-4,4))
+ hist(theta1b, at = seq(-4, 4, .5), xlim = c(-4,4))
+ hist(theta1c, at = seq(-4, 4, .5), xlim = c(-4,4))
+
+ parms1c <-  mirt( score_mt2, 
+   model = m2,  
+   TOL = .001, 
+   itemtype = "Rasch",
+   optimizer = 'solnp', 
+   solnp_args=solnp_args,
+   pars = 'values') 
+
+```
+
+
+### Dois parâmetros no mirt
+
+```{r}
+
+  mod2 <- mirt(score_mt2, model = 1, TOL = .001, itemtype='2PL')
+
+ parms2 <-  mirt(score_mt2, model = 1, TOL = .001, itemtype='2PL', pars = 'values') 
+ 
+ summary(mod2)
+ coef(mod2 , simplify=TRUE, IRTpars=TRUE) %>% view
+ plot(mod2,  type = 'trace', facet_items = FALSE)
+  
+  coef(mod2 )
+ 
+ itemfit(mod2)
+ 
+ itemfit(mod2, empirical.plot=2)
+ itemfit(mod2, empirical.plot=3)
+ itemfit(mod2, empirical.plot=10)
+ itemfit(mod2, empirical.plot=43)
+ 
+ 
+```
+
+### Três parâmetros no mirt
+
 ```{r}
  
-  mod3<- mirt(score_mt, model = 1, TOL = .001, itemtype='3PL')
- summary(mod3)
- coef(mod3 , simplify=TRUE, IRTpars=TRUE)
+  mod3 <- mirt(score_mt2, model = 1, TOL = .001, itemtype='3PL')
+  parms3 <-  mirt(score_mt2, model = 1, TOL = .001, itemtype='3PL', pars = 'values') 
+  summary(mod3)
+  coef(mod3 , simplify=TRUE, IRTpars=TRUE) %>% view
   plot(mod3,  type = 'trace', facet_items = FALSE)
  
  itemfit(mod3)
+ 
+ itemfit(mod3, empirical.plot=2)
+ itemfit(mod3, empirical.plot=3)
+ itemfit(mod3, empirical.plot=10)
+ itemfit(mod3, empirical.plot=43)
+ 
  
  itemfit(mod3, empirical.plot=5)
  
@@ -166,15 +329,112 @@ library(tidyverse)
  
 ```
 
+
+### Tentando achar os parâmetros "originais" dos itens
+
+* Especificando distribuições a priori para os parâmetros
+
+ - https://groups.google.com/g/mirt-package/c/8Usx53BoXyw
+ 
+ 
+```{r}
+
+?dnorm
+
+ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+        stat_function(fun = dnorm, args = list(mean = 0, sd=1))
+
+ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+        stat_function(fun = dlnorm, args = list(mean = 1, sd=.5))
+
+
+
+```
+
+* calibrando na métrica do ENEM
+
+```{r}
+ 
+
+  m3pl <- mirt.model(
+    "th_mt = 1-45  
+    PRIOR = (1-45, a1, lnorm, 1, 0.5), 
+            (1-45, d, norm, 0, 1),
+            (1-45, g, expbeta, 5, 17)"
+      )
+
+  parms <- mirt(score_mt, model = m3pl, TOL = .001, itemtype='3PL', pars = 'values')
+  
+  M <- (mean(enem_2015$NU_NOTA_MT, na.rm = TRUE) - 500) / 100
+  DP <- sd(enem_2015$NU_NOTA_MT, na.rm = TRUE) / 100
+  
+  
+  parms[parms$name == "MEAN_1", ]$value <- M
+  parms[parms$name == "COV_11", ]$value <- DP*DP
+ 
+  mt3pl <- mirt(score_mt, model = m3pl, TOL = .001, itemtype='3PL', pars = parms)
+
+ 
+  summary(mt3pl)
+  coef(mt3pl , simplify=TRUE, IRTpars=TRUE) %>% view
+  plot(mt3pl,  type = 'trace', facet_items = FALSE)
+ 
+ dev.new() 
+ itemfit(mt3pl, empirical.plot=2)
+ 
+ itemfit(mt3pl, empirical.plot=3)
+ itemfit(mt3pl, empirical.plot=10)
+ itemfit(mt3pl, empirical.plot=43)
+ 
+ eap_mt =  fscores(mt3pl, method = "EAP")
+ names(enem_2015)
+ df <- cbind( 
+   NU_NOTA_MT = enem_2015$NU_NOTA_MT,
+   eap_mt = fscores(mt3pl, method = "EAP")[, 1],
+   tot = apply(score_mt, MARGIN = 1, sum, na.rm =TRUE)
+ )
+ 
+ 
+
+ 
+ library(psych)
+ corr.test(df)
+   
+  df %>% as.data.frame %>% 
+    mutate(
+     eap_mt = (eap_mt*100) + 500 
+    ) %>% 
+   ggplot(aes(y=NU_NOTA_MT, x=eap_mt, colour = tot)) + 
+    geom_point(alpha = 1/8) +
+    scale_x_continuous(breaks=seq(200, 1000, 50), limits = c(200, 1000)) +
+    scale_y_continuous(breaks=seq(200, 1000, 50), limits = c(200, 1000)) 
+  
+  frq(df[, 3])
+  
+ ggplot(data=enem_2015, aes(x=F1)) + 
+    geom_histogram(alpha =.4, fill ="blue", color="gray",  binwidth=.4)+ 
+    scale_x_continuous(breaks=seq(-3, 3, .5))
+ 
+
+```
+
+```{r}
+
+
+   tot_ch <-  apply(score_ch, MARGIN = 1, FUN = sum, na.rm=TRUE)
+    scrs <- as.data.frame(cbind(tot = tot_ch, eap = theta_ch))
+    enem_2015 <- cbind(enem_2015, scrs)
+    names(enem_2015)[182:183] <- c("f1_ch", "se_f1_ch")
+    
+  
+```
+
+
+
 ##### Correlacionando 1, 2, e 3 parâmetros a partir dos resultados do mirt e TAM
 
 ```{r}
 
- df <- cbind( df, 
-   eap1b = fscores(mod1, method = "EAP")[, 1],
-   eap2b = fscores(mod2, method = "EAP")[, 1],
-   eap3b = fscores(mod3, method = "EAP")[, 1]
- )
  
   corr.test(df )
 
@@ -204,9 +464,40 @@ library(tidyverse)
  
 ```
 
+```{r}
+
+ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+        stat_function(fun = dnorm, args = list(mean = -1.386294, sd=.2))
+
+ggplot(data.frame(x = seq(0, .4, .01)), aes(x = x)) +
+        stat_function(fun = lbeta, args = list(a = 5, b = 17))
+
+library(ggplot2)
+pts <- seq(.01, .5, length.out=1000) #between g of 0 and .5
+normd <- dnorm(qnorm(pts), qnorm(.2) , .22, log = TRUE)
+plot(pts, normd)
+
+betaden <- function(pts, size, mean){
+    stopifnot(mean > 0 | mean < 1)
+    compliment <- 1 - mean
+    dbeta(pts, size * mean, size * compliment, log = TRUE)
+}
+betad <- betaden(pts, 35, .2)
+plot(pts, betad)
+
+
+df <- data.frame(g=pts, type=factor(rep(c('norm', 'beta'), each = 1000)),
+                 den=c(normd, betad))
+ggplot(df, aes(g, den, colour = type)) + geom_line() + geom_vline(xintercept = .2, col = 'red')
+```
+
+
+
+
 ##### Tente você
 
-* Faça as mesmas análises com a prova de ciências humanas 
-
+-   Faça as mesmas análises com a prova de ciências humanas
+-   Tente limitar os valores de lbounf e ubound
+-   Tente calibrar com uma amostra com mais alunos de alta habilidade
 
 
