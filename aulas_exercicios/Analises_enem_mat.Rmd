@@ -1,0 +1,291 @@
+---
+title: Calibração do modelo de 2 e 3 parâmetros na prova de Matemática do ENEM
+author: "Ricardo Primi"
+date: "31 de maio de 2021"
+output: 
+  html_document: 
+    highlight: textmate
+    theme: paper
+---
+
+```{r global_options, include=FALSE}
+  knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+### Abre banco
+
+-   Faça o download do arquivo de <http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/enem_2015.RData>
+
+```{r }
+
+  load("../enem_2015.RData")
+
+```
+
+-   Bibliotecas
+
+```{r}
+  library(TAM)
+  library(tidyverse)
+  library(mirt)
+  library(skimr)
+  library(sjmisc)
+```
+
+
+
+### Preparando o banco: seleciona amostra com alta habilidade
+
+```{r}
+ 
+  enem_2015$score_mt = apply(score_mt, MARGIN = 1, sum, na.rm=TRUE)
+  
+  enem_2015$rwn_id <- as.integer(row.names(enem_2015))
+
+  frq(enem_2015$score_mt)
+  
+  enem_2015 <- bind_cols(enem_2015, score_mt)
+
+  set.seed(44)
+  df1 <- enem_2015 %>% 
+    filter(score_mt >=3, score_mt <=28) %>%
+    group_by(score_mt) %>%
+    sample_n(350) %>%
+    ungroup()
+  
+  str(df1)
+  
+  df1$score_mt %>% frq()
+
+  df2 <- enem_2015 %>% 
+    filter(score_mt > 28 | score_mt < 3) 
+  
+
+  df <- bind_rows(df1, df2)
+  
+  saveRDS(df, "amst_enem_mt.RDS")
+  
+   df$score_mt %>% frq()
+  
+  s <- enem_2015$rwn_id %in% df$rwn_id 
+
+  df$rwn_id %in% enem_2015$rwn_id %>% frq
+  
+  rm(df1, df2)
+  
+  names(df)
+ 
+  score_mt2 <- df[ , 175:219]
+  
+  
+```
+
+### Análise psicométrica e efa
+```{r}
+
+  library(psych)
+
+  score_mt2 %>% fa.parallel(cor = "tet")
+  r_matrix_mt <- score_mt2 %>%  tetrachoric
+
+   r_matrix_mt$rho %>% view
+ 
+ r_matrix_mt$rho %>% data.frame %>% 
+   add_rownames(var = "coditem1") %>% 
+   pivot_longer(cols = 2:46, names_to = "coditem2" ,values_to = "r") %>%
+    ggplot(
+      aes(x=r)
+      ) +
+    geom_histogram(
+      aes(y=..density..),
+      binwidth = .10,
+      color = "white", 
+      fill = "blue", 
+      alpha = .5
+      ) +
+    scale_x_continuous(
+      breaks = seq(0, 1, .1),
+      limits = c(0,1) 
+    ) +
+    scale_color_brewer(palette = "Set1") +
+    theme_minimal()
+ 
+ 
+  CTTstats <- CTT::itemAnalysis(as.matrix(score_mt2 ))
+  CTTstats$itemReport %>% view
+  
+  r_matrix_mt[["rho"]] %>% view
+
+
+```
+
+```{r}
+
+
+  m3pl <- mirt.model(
+    "th_mt = 1-45  
+    PRIOR = (1-45, a1, lnorm, 1, 0.5), 
+            (1-45, d, norm, 0, 1),
+            (1-45, g, expbeta, 5, 17)"
+      )
+
+  parms <- mirt(score_mt2, model = m3pl, TOL = .001, itemtype='3PL', pars = 'values')
+  
+  M <- (mean(df$NU_NOTA_MT, na.rm = TRUE) - 500) / 100
+  DP <- sd(df$NU_NOTA_MT, na.rm = TRUE) / 100
+  
+  
+  parms[parms$name == "MEAN_1", ]$value <- M
+  parms[parms$name == "COV_11", ]$value <- DP*DP
+ 
+  mt3pl <- mirt(score_mt2, model = m3pl, TOL = .001, itemtype='3PL', pars = parms)
+  
+  mt3pl <- mirt(score_mt2, model = m3pl, TOL = .001, itemtype='3PL')
+ 
+  summary(mt3pl)
+  coef(mt3pl , simplify=TRUE, IRTpars=TRUE) %>% view
+  
+  coef(mt3pl , simplify=TRUE) %>% view
+ 
+   plot(mt3pl,  type = 'trace', facet_items = FALSE)
+ 
+ dev.new() 
+ itemfit(mt3pl, empirical.plot=2)
+ 
+ itemfit(mt3pl, empirical.plot=3)
+ itemfit(mt3pl, empirical.plot=10)
+ itemfit(mt3pl, empirical.plot=43)
+ 
+ eap_mt =  fscores(mt3pl, method = "EAP")
+ 
+ df3 <- cbind( 
+   NU_NOTA_MT = df$NU_NOTA_MT,
+   eap_mt = eap_mt[, 1],
+   tot = df$score_mt
+ )
+ 
+ fscores(mt3pl, method = "EAP", returnER = TRUE)
+ 
+ empirical_rxx(mt3pl)
+ 
+ 
+
+ 
+ library(psych)
+ corr.test(df3)
+   
+  df3 %>% as.data.frame %>% 
+    mutate(
+     eap_mt = (eap_mt*100) + 500 
+    ) %>% 
+   ggplot(aes(y=NU_NOTA_MT, x=eap_mt, colour = tot)) + 
+    geom_point(alpha = 1/8) +
+    scale_x_continuous(breaks=seq(200, 1000, 50), limits = c(200, 1000)) +
+    scale_y_continuous(breaks=seq(200, 1000, 50), limits = c(200, 1000)) 
+  
+  frq(df[, 3])
+  
+ ggplot(data=as.data.frame(df3), aes(x=tot)) + 
+    geom_histogram(alpha =.4, fill ="blue", color="gray",  binwidth=2)+ 
+    scale_x_continuous(breaks=seq(0, 45, 5))
+ 
+ 
+ library(skimr)
+ 
+  df3 %>% as.data.frame %>% 
+    mutate(
+     eap_mt = (eap_mt*100) + 500 
+    ) %>% skim()
+ 
+ 
+ 
+
+```
+### Prova CH
+```{r}
+
+  m3pl <- mirt.model(
+    "th_ch = 1-45  
+    PRIOR = (1-45, a1, lnorm, 1, 0.5), 
+            (1-45, d, norm, 0, 1),
+            (1-45, g, expbeta, 5, 17)"
+      )
+
+  ch3pl <- mirt(score_ch, model = m3pl, TOL = .001, itemtype='3PL')
+ 
+  summary( ch3pl )
+  coef(ch3pl , simplify=TRUE, IRTpars=TRUE) %>% view
+  
+  
+  library(readr)
+  pars_CH_bilog <- read_delim("pars_CH_bilog.csv", ";", escape_double = FALSE, trim_ws = TRUE)
+  
+  pars_CH_mirt <- coef(ch3pl , simplify=TRUE, IRTpars=TRUE)
+  
+  paras_ch <- bind_cols(pars_CH_bilog, as.data.frame(pars_CH_mirt$items))
+
+  names( paras_ch )
+  
+  corr.test( paras_ch[ , c(5, 7, 11, 17:19)])
+  
+  paras_ch %>% 
+   ggplot(aes(y=PAR_A, x=a, colour =PAR_B)) + 
+    geom_point(alpha = 1/2) +
+    geom_smooth(color = "gray", alpha = 1/8)
+  
+  
+   paras_ch %>% 
+   ggplot(aes(y=PAR_B, x=b, colour =PAR_A)) + 
+    geom_point(alpha = 1/2) +
+    geom_smooth(color = "gray", alpha = 1/8)
+  
+  
+    paras_ch %>% 
+   ggplot(aes(y=PAR_C, x=g, colour =PAR_B)) + 
+    geom_point(alpha = 1/2) +
+    geom_smooth(color = "gray", alpha = 1/8)
+
+```
+
+### Prova MT
+```{r}
+
+  m3pl <- mirt.model(
+    "th_mt = 1-45  
+    PRIOR = (1-45, a1, lnorm, 1, 0.5), 
+            (1-45, d, norm, 0, 1),
+            (1-45, g, expbeta, 5, 17)"
+      )
+
+  mt3pl <- mirt(score_mt, model = m3pl, TOL = .001, itemtype='3PL')
+  
+ 
+  summary( mt3pl )
+  coef( mt3pl , simplify=TRUE, IRTpars=TRUE) %>% view
+  
+  pars_MT_bilog <- read.table("pars_MT_bilog.csv", sep = ";", dec = ",", header = TRUE)
+  
+  pars_MT_mirt <- coef(mt3pl , simplify=TRUE, IRTpars=TRUE)
+  
+  paras_mt <- bind_cols(pars_MT_bilog, as.data.frame(pars_MT_mirt$items))
+
+  corr.test( paras_mt[ , c(5, 7, 11, 17:19)])
+  
+  paras_mt %>% 
+   ggplot(aes(y=PAR_A, x=a, colour =PAR_B)) + 
+    geom_point(alpha = 1/2) +
+    geom_smooth(color = "gray", alpha = 1/8)
+   
+   paras_mt %>% 
+   ggplot(aes(y=PAR_B, x=b, colour =PAR_A)) + 
+    geom_point(alpha = 1/2) +
+    geom_smooth(color = "gray", alpha = 1/8)
+  
+  paras_mt %>% 
+   ggplot(aes(y=PAR_C, x=g, colour =PAR_B)) + 
+    geom_point(alpha = 1/2) +
+    geom_smooth(color = "gray", alpha = 1/8)
+  
+  
+
+```

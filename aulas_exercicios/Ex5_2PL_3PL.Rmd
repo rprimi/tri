@@ -351,7 +351,7 @@ ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
 
 ```
 
-* calibrando na métrica do ENEM
+* Calibrando na métrica do ENEM
 
 ```{r}
  
@@ -493,11 +493,43 @@ ggplot(df, aes(g, den, colour = type)) + geom_line() + geom_vline(xintercept = .
 
 
 
-
 ##### Tente você
 
 -   Faça as mesmas análises com a prova de ciências humanas
 -   Tente limitar os valores de lbounf e ubound
 -   Tente calibrar com uma amostra com mais alunos de alta habilidade
+
+
+* Amostra com distribuição retangular de habilidade 
+
+```{r}
+  library(sjmisc)
+
+
+  enem_2015$score_mt = apply(score_mt, MARGIN = 1, sum)
+  
+  enem_2015$rwn_id <- as.integer(row.names(enem_2015))
+
+  frq(enem_2015$score_mt)
+
+  df1 <- enem_2015 %>% 
+    filter(score_mt >=3, score_mt <=28) %>%
+    group_by(score_mt) %>%
+    sample_n(350) 
+
+  df2 <- enem_2015 %>% 
+    filter(score_mt >28) 
+
+  df <- bind_rows(df1, df2)
+  
+  s <- enem_2015$rwn_id %in% df$rwn_id 
+
+  df$rwn_id %in% enem_2015$rwn_id %>% frq
+  
+  
+  
+  
+  
+```
 
 

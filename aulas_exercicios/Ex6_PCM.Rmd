@@ -1,0 +1,498 @@
+---
+title: Modelo de créditos parciais
+author: "Ricardo Primi"
+date: "24 de maio de 2021"
+output: 
+  html_document: 
+    highlight: textmate
+    theme: paper
+---
+
+```{r global_options, include=FALSE}
+  knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+
+##### Bibliotecas
+```{r message=FALSE, warning=FALSE}
+  
+  library(tidyverse)
+  library(sjmisc)
+ 
+  library(TAM)
+  library(psych)
+  library(readxl)
+  library(knitr)
+  library(RColorBrewer)
+
+  source("http://www.labape.com.br/rprimi/R/utils_construct_maps.R")
+
+```
+
+
+##### 1. Lê/importa banco
+
+http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/senna_v1_54_ex3.RDS
+
+```{r}
+
+# Abre direto da internet (con é um endereço do arquivo) 
+
+  con<-url("http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/senna_v1_54_ex3.RDS") 
+  sennav1 <-  readRDS(con) 
+ 
+  sennav1 <- readRDS("~/Dropbox (Personal)/TRI/2019_2021_slides_exerc/ senna_v1_54_ex3.RDS")
+
+  con<-url("http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/senna_v1_54_ex3_dic.RDS") 
+  dic <-  readRDS(con)
+  
+```
+
+
+##### 2. Examina base e seleciona os itens
+```{r}
+
+  dic_a <- dic %>% filter(factor == "A")
+  vars_a <- dic_a$coditem
+  labels_a <- dic_a$text
+  
+  dt <- sennav1[ , vars_a]
+  
+```
+
+
+##### 3. Análise psicométrica classica
+```{r}
+         
+   alpha(dt, check.keys = TRUE)
+
+```
+
+##### 4. Inverte itens negativos e transforma de 1-5 para 0-4
+
+```{r}
+
+  dt$i67.E.Soc.00 <- 6 - dt$i67.E.Soc.00
+  dt$i73.E.Soc.00 <- 6 - dt$i73.E.Soc.00
+```
+
+
+```{r}
+
+
+   dt %>% set_names(dic_a$text) %>% map(frq) 
+ 
+  it_neg <- dic_a %>% filter(pole == 0) %>% pull(coditem)
+  
+ 
+  
+  dt <- dt %>%
+   mutate( across( all_of(it_neg), ~6 - .x) ) %>%
+   mutate( across( everything(), ~.x - 1)) 
+      
+ 
+
+```
+
+##### 5. Calibra modelo de créditos parciais
+
+```{r}
+
+  tri_a  <- tam.mml(resp = dt, irtmodel = "PCM")
+  tri_a2  <- tam.mml(resp = dt, irtmodel = "RSM")
+  
+   tri_a$item_irt %>% as.data.frame() %>% 
+     mutate( across( all_of(4:7), ~.x + beta)) %>%
+     view
+
+  tri_a$item_irt %>% view()
+  tri_a2$item_irt %>% view()
+
+```
+
+
+##### 6. Examina ajuste dos itens
+
+```{r}
+  fit <- tam.fit(tri_a)
+  summary(fit)
+  
+   plot(tri_a, ngroups = 24)
+ 
+```
+
+##### 7. Examina curva dos itens
+```{r}
+
+   summary(tri_a)
+   dev.new()
+   plot(tri_a, type = "items")
+```
+
+
+##### 7. Mapa de construto: tentativa 3
+
+https://rprimi.shinyapps.io/senna_norm_app/
+
+```{r}
+
+ tam.threshold(tri_a)
+
+library(artyfarty)
+ dev.new()
+person_item_map_v3( 
+  min = -2.5, 
+  max = 2.5, 
+  step = .5,
+   item_text_max = 44,
+   size_categ_label = 4,
+   size_bar = 4,
+  item_tresh =  tam.threshold(tri_a),
+  coditem = names(dt),
+  item_text = labels_a,
+  pole = dic_a$pole,
+  theta = tri_a$person$EAP
+  )
+
+describe_likert5_items(
+  data = dt,
+  item_tresh =  tam.threshold(tri_e),
+  coditem = names(dt),
+  item_text = names(dt),
+  pole = c(1,1,0, 1, 0, 1, 1,1,1)
+)
+  
+
+
+```
+##### 8. Mapa de construto: tentativa 4
+```{r}
+
+
+person_item_map_v3(
+  size_bar = 4,
+  size_categ_label = 3,
+  item_text_max = 40,
+  item_tresh =  tam.threshold(tri_e),
+  coditem = dic_e$coditem,
+  item_text = dic_e$text,
+  pole = dic_e$pole,
+  theta = tri_e$person$EAP
+    )
+
+
+```
+
+```{r eval=FALSE, echo=FALSE}
+
+# left overs ..
+# 
+
+  size_bar = 4
+  size_categ_label = 3
+  item_text_max = 40
+  item_tresh =  tam.threshold(tri_e)
+  coditem = dic_e$coditem
+  item_text = dic_e$text
+  pole = dic_e$pole
+  theta = tri_e$person$EAP
+  min = -3
+  max = 3
+  item_text_max = 28
+  binwidth = .25
+  size_categ_label = 4
+  size_bar = 6
+  categ_label = c("1", "2", "3", "4", "5")
+  categ_color = c("#DF4949", "#FBB941","#EEE657", "#2B82C9",  "#2CCA90")
+  intercept=0
+  color_hist = "#DF4949"
+
+
+   
+  item_tresh =  tam.threshold(tri_e)
+  coditem = names(dt)
+  item_text = names(dt)
+  pole = c(1,1,0, 1, 0, 1, 1,1,1)
+  theta = tri_e$person$EAP 
+  min = -3 
+  max = 3
+  gama_label =  c("p>=2", "p>=3", "p>=4", "p>=5")
+  categ_label = c("1", "2", "3", "4", "5")
+  categ_color = c("#2B82C9", "#2CCA90", "#EEE657", "#FBB941", "#FB6042","#DF4949")
+  categ_color = c("#DF4949", "#FB6042", "#FBB941","#EEE657", "#2CCA90",  "#2B82C9")
+  categ_color = c("#DF4949", "#FBB941","#EEE657", "#2CCA90",  "#2B82C9")
+  
+  names(categ_color) <- c("1", "2", "3", "4", "5")
+ 
+  hist(discoveries, col = categ_color)
+  display.brewer.pal(n = 5, name = "Paired" )
+  
+  n_categ = length(categ_label)
+  
+  
+  item_text_max = 28
+  binwidth = .25
+  
+   dic <- tibble(
+    coditem,
+    item_text,
+    pole
+  )
+ 
+  dic$item_text <- stringr::str_wrap(dic$item_text, item_text_max)
+  
+  item_tresh <- as.data.frame(item_tresh)
+  names(item_tresh) <- categ_label[2:n_categ]
+  item_tresh$b <- apply(item_tresh, MARGIN = 1, function(x){mean(x, na.rm =TRUE)})
+
+  
+  dic <- cbind(dic, item_tresh)
+  
+  dic$item_text <- factor(
+    factor(dic$item_text, 
+    levels = dic$item_text[order(dic$b)])
+    )
+  
+  dic$min <- min
+  dic$max <- max
+ # dic$zero <- min
+  
+  items1 <- dic %>% 
+    gather(key = variable, value = start, -coditem, -item_text, -pole, -b ) %>%
+    arrange()
+ 
+   items1$variable2 <- factor( 
+     items1$variable, 
+     levels = c("min", categ_label[2:n_categ], "max")
+     )
+    
+   
+   items1 <- items1 %>% 
+     arrange(item_text, variable2) %>%
+     mutate(
+       end = lead(start),
+       variable2 = fct_recode(variable2, `1` = "min")
+       ) %>%
+     filter(variable2 != "max") %>%
+    mutate( variable2 = fct_drop(variable2))
+ 
+   
+  ggplot(data =  items1  ) +
+      geom_segment(
+        aes(
+        x = item_text,  
+        xend = item_text, 
+        y = start,
+        yend = end,
+        colour = variable2),
+        alpha =1/2,
+        size = 8) +
+    geom_hline(yintercept = 0, color =c("#646464")) +
+    scale_color_manual(
+      "Response", 
+      labels = categ_label, 
+      values = categ_color, 
+      guide="legend"
+    ) +
+     coord_flip() +
+    scale_y_continuous(breaks=seq(min,max,1), limits=c(min,max)) +
+    theme_minimal()
+  
+  
+   
+   
+   
+   zeros <- tibble(
+     coditem  = unique(items1$coditem),
+     item_text = unique(items1$item_text),
+     value = 0.00001) %>% 
+     bind_rows(
+     tibble(coditem  = unique(items1$coditem),
+     item_text = unique(items1$item_text),
+     value = -0.00001)
+     
+   )
+   
+   items1 <- items1 %>% bind_rows(zeros)
+  
+   items1 <-  items1 %>% arrange(item_text, value)
+   
+   
+   
+   items1 <-  items1 %>% mutate(
+     pole = ifelse(is.na(pole), lag(pole), pole ),
+     b = ifelse(is.na(b), lag(b), b ),
+     variable = ifelse(is.na(variable), lag(variable), variable ),
+     variable2 = ifelse(is.na(variable2), lag(variable2), variable2 ),
+     value = ifelse(is.na(value), lag(value), value ),
+     variable3 = ifelse(is.na(variable3), lag(variable3), variable3 )
+   )
+   
+   items1 <-  items1 %>% mutate(
+     pole = ifelse(is.na(pole), lag(pole), pole ),
+     b = ifelse(is.na(b), lag(b), b ),
+     variable = ifelse(is.na(variable), lag(variable), variable ),
+     variable2 = ifelse(is.na(variable2), lag(variable2), variable2 ),
+     value = ifelse(is.na(value), lag(value), value ),
+     variable3 = ifelse(is.na(variable3), lag(variable3), variable3 )
+   )
+   
+  items1 <- items1 %>% mutate(
+     k_plus_1 = lead(value),
+     k_minus_1 = lag(value),
+    
+    )
+  items1$variable3 <- categ_color[as.character(items1$variable3)]
+  items1$variable3 <- factor(items1$variable3, levels = categ_color ) 
+      
+   
+   items_plus <- items1 %>% filter(value > 0)
+   items_minus <- items1 %>% filter(value <=0)
+   
+   items_minus <-  items_minus %>% 
+      mutate(value_dist = value - k_plus_1)
+    
+    items_plus <-  items_minus %>% 
+      mutate(value_dist = k_plus_1 - value)
+    
+     bind_cols(items_minus, items_plus) %>%  
+   ggplot() + 
+        geom_bar( aes(x=item_text, y=value_dist , fill=variable3),stat = "identity", position="stack", alpha=1/2) + 
+  
+       
+       
+        scale_fill_manual( values=brewer.pal((6),"Paired") ) + 
+   
+       
+        scale_y_continuous(seq(-3, 3, 1), lim=c(-3, 3)) +
+     coord_flip() 
+   
+   
+    
+    items_minus1 <- tibble(
+     variable3 = as.character(c(1, 2, 3)),
+     item_text ="i1",
+     value_dist = c(-1, -1, -1)
+    )
+    
+    items_plus1 <- tibble(
+     variable3 = as.character(c(3, 4, 5)),
+     item_text ="i1",
+     value_dist = c(1, 1, 1)
+    )
+    
+    
+   ggplot() + 
+      geom_bar(data =items_minus, 
+      aes(x=item_text, y=value_dist , fill=variable3), stat = "identity", position="stack", alpha=1/2)  + 
+    geom_bar(data =items_plus,  
+      aes(x=item_text, y=value_dist, fill=variable3), stat = "identity", position="stack", alpha=1/2) +
+      scale_fill_identity( guide = "legend") +
+   
+   scale_y_continuous(seq(-3, 3, 1), lim=c(-3, 3)) +
+    coord_flip() +
+    scale_fill_identity(breaks=categ_color, guide="legend") + 
+   scale_fill_manual( values=brewer.pal((6),"Paired") ) + 
+    
+  scale_fill_identity( labels = categ_label, breaks=brewer.pal((5),"Paired"), guide="legend") +
+  
+    dist_next_k  = k_plus_1 - value,
+      variable3 = factor(variable3))
+   
+   
+   items1 <- items1 %>% mutate(
+     k_plus_1 = lead(value),
+     dist_next_k  = k_plus_1 - value,
+      variable3 = factor(variable3))
+   
+   
+   items1 %>% filter(variable2 !="max") %>% 
+     mutate(
+      dist_next_k = ifelse(variable2 == "zero", k_plus_1, dist_next_k + -3) ,
+      variable3 = factor(variable3) ) %>%
+    
+     
+     ggplot() + 
+    geom_bar(aes(x=item_text, y=dist_next_k, fill=variable3),stat = "identity", alpha=1/2) +
+     scale_fill_manual( values=pal("flatty")[c(1, 2, 3, 4, 5, 6, 7, 8)] ) + 
+     coord_flip()
+    
+    +
+    geom_bar(data = dat2, aes(x=item_text, y=value, fill=variable2),stat = "identity") +
+   
+  
+
+  # invert responses 
+  
+  inv_label <-  gama_label[(n_categ+1) - items1[items1$pole==0, ]$variable2 ]
+  inv_label <- str_replace(inv_label, ">=", "<=")
+  
+  items1[items1$pole==0, ]$variable <- inv_label
+  
+  dat1 <- items1 %>% filter(value  >= 0) 
+  dat2 <- items1 %>% filter(value  < 0) 
+
+  ggplot() + 
+    geom_bar(data = dat1, aes(x=item_text, y=value, fill=variable2),stat = "identity") +
+    geom_bar(data = dat2, aes(x=item_text, y=value, fill=variable2),stat = "identity") +
+   scale_fill_manual( values=pal("flatty")[c(1, 2, 3, 4, 5, 6, 7, 8)] ) 
+  
+  
+  
+   ggplot( 
+    data = items1,  
+    aes(
+      y=value2, 
+      x=item_text, 
+      group=item_text, 
+      fill=variable
+      )
+    ) + 
+   # geom_point() +
+   
+    geom_bar(data=items1, aes(x = item_text, y=value2, fill=variable), position="stack", stat="identity") + 
+  
+    geom_text_repel(
+      aes(
+       label=variable, 
+        color = variable
+        ), 
+     size=2.5, vjust=-1 ) +
+  
+      scale_y_continuous(
+      breaks=(seq(min, max, 1)), 
+      limits= c(min, max)
+    ) +
+    
+    scale_fill_manual( values=pal("flatty")[c(1, 2, 3, 4, 5, 6, 7, 8)] ) +  
+   
+    theme_bw() + 
+    
+    theme(legend.position="none", 
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank()
+    ) +
+ 
+    coord_flip() +
+    
+    geom_hline(color
+      yintercept=quantile(x = theta$theta, 
+        na.rm = TRUE, probs = c(.25, .50, .75)), 
+      color="red", linetype="dotted") 
+    
+  
+
+```
+
+```{r}
+ display.brewer.pal(n = 10, name = "Paired" )
+
+brewer.pal(10, name = "Paired")
+
+ display.brewer.pal(n = 10, name = "Greys" )
+ 
+brewer.pal(5, name = "Greys")
+
+
+```
+
