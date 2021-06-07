@@ -57,3 +57,23 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 -   Slides: [http://www.labape.com.br/primi/TRI/a6_2\_3_param.pdf](http://www.labape.com.br/rprimi/TRI/a6_2_3_param.pdf)
 
 -   Exercício 4: [Ex5_2PL_3PL.Rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Ex5_2PL_3PL.Rmd)
+
+-   Comparação de calibrações via mirt e BILOG-MG na prova de Matemática: [Analises_enem_mat.Rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Analises_enem_mat.Rmd)
+
+#### Tópico 6: Modelos para escalas politômicas
+
+-   Slides: [http://www.labape.com.br/rprimi/TRI/a5_partial_credit.pdf](http://www.labape.com.br/rprimi/TRI/a5_partial_credit.pdf)
+
+-   Rasch-Masters Partial Credit Model
+
+-   Rasch-Andrich Rating Scale Model
+
+-   Samejima's Graded Response Model
+
+-   Muraki's Generalized Partial Credit Model
+
+-   Exercício 6: [Ex6_PCM.Rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Ex6_PCM.Rmd)
+
+#### Tópico 7: Funcionamento Diferencial do Item (DIF)
+
+-   Slides: [http://www.labape.com.br/rprimi/TRI/a7_dif.pdf](http://www.labape.com.br/rprimi/TRI/a7_dif.pdf)

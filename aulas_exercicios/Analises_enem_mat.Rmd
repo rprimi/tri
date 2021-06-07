@@ -78,6 +78,9 @@ output:
   score_mt2 <- df[ , 175:219]
   
   
+  amst_enem_mt <- readRDS("amst_enem_mt.RDS")
+  score_mt2 <- amst_enem_mt[ , 175:219]
+  
 ```
 
 ### Análise psicométrica e efa
@@ -257,34 +260,81 @@ output:
             (1-45, g, expbeta, 5, 17)"
       )
 
-  mt3pl <- mirt(score_mt, model = m3pl, TOL = .001, itemtype='3PL')
+
+  prms <- mirt(score_mt, model = m3pl, TOL = .001, itemtype='3PL', pars = "values")
+  mt3pl_full <- mirt(score_mt, model = m3pl, TOL = .001, itemtype='3PL', pars = prms)
   
  
-  summary( mt3pl )
-  coef( mt3pl , simplify=TRUE, IRTpars=TRUE) %>% view
+  prms[prms$name == "d", ]$lbound = -6
+  prms[prms$name == "d", ]$ubound = 6
   
-  pars_MT_bilog <- read.table("pars_MT_bilog.csv", sep = ";", dec = ",", header = TRUE)
+  prms[prms$name == "a1", ]$lbound = .20
+  prms[prms$name == "a1", ]$ubound = 3.0
+ 
+  prms %>% view
   
-  pars_MT_mirt <- coef(mt3pl , simplify=TRUE, IRTpars=TRUE)
+  mt3pl_amst <- mirt(score_mt2, model = m3pl, TOL = .001, itemtype='3PL', pars = prms)
   
-  paras_mt <- bind_cols(pars_MT_bilog, as.data.frame(pars_MT_mirt$items))
+  summary(mt3pl_full )
+  coef( mt3pl_full , simplify=TRUE, IRTpars=TRUE) %>% view
+  coef( mt3pl_amst , simplify=TRUE, IRTpars=TRUE) %>% view
+ 
+   pars_MT_bilog_full %>% view
+  
+  mean( pars_MT_bilog_full$INTERCEPTO)
+  mean( pars_MT_bilog_full$PAR_B)
+  
+  pars_MT_bilog_full <- read.table("pars_MT_bilog.csv", sep = ";", dec = ",", header = TRUE)
+  pars_MT_mirt_full <- coef(mt3pl_full , simplify=TRUE, IRTpars=TRUE)
+  
+  pars_MT_bilog_amst <- read.table("pars_MT_amostra_bilog.csv", sep = ";", dec = ",", header = TRUE)
+  
+  pars_MT_bilog_amst <- pars_MT_bilog_amst %>% set_names(paste0, "_am")
+  pars_MT_mirt_amst <- coef(mt3pl_amst , simplify=TRUE, IRTpars=TRUE)
+  pars_MT_mirt_amst <- pars_MT_mirt_amst$items %>% as.data.frame %>% set_names(paste0, "_am")
+ 
+  
+  item_parms_mt <- bind_cols( pars_MT_bilog_full,  pars_MT_bilog_amst, as.data.frame(pars_MT_mirt_full$items),  pars_MT_mirt_amst )
+  
+  names(item_parms_mt)
 
-  corr.test( paras_mt[ , c(5, 7, 11, 17:19)])
+  corr.test(  item_parms_mt [ , c(5, 7, 11, 33:35, 21, 23, 27, 37:39)])
   
-  paras_mt %>% 
+  skim(item_parms_mt [ , c(5, 7, 11, 33:35, 21, 23, 27, 37:39)])
+  
+  item_parms_mt %>% 
    ggplot(aes(y=PAR_A, x=a, colour =PAR_B)) + 
     geom_point(alpha = 1/2) +
     geom_smooth(color = "gray", alpha = 1/8)
    
-   paras_mt %>% 
+   item_parms_mt %>% 
    ggplot(aes(y=PAR_B, x=b, colour =PAR_A)) + 
     geom_point(alpha = 1/2) +
     geom_smooth(color = "gray", alpha = 1/8)
   
-  paras_mt %>% 
+  item_parms_mt %>% 
    ggplot(aes(y=PAR_C, x=g, colour =PAR_B)) + 
     geom_point(alpha = 1/2) +
     geom_smooth(color = "gray", alpha = 1/8)
+  
+  
+  
+  item_parms_mt %>% 
+   ggplot(aes(y=PAR_A_am, x=a_am, colour =PAR_B_am)) + 
+    geom_point(alpha = 1/2) +
+    geom_smooth(color = "gray", alpha = 1/8)
+   
+   item_parms_mt %>% 
+   ggplot(aes(y=PAR_B_am, x=b_am, colour =PAR_A_am)) + 
+    geom_point(alpha = 1/2) +
+    geom_smooth(color = "gray", alpha = 1/8)
+  
+  item_parms_mt %>% 
+   ggplot(aes(y=PAR_C_am, x=g_am, colour =PAR_B_am)) + 
+    geom_point(alpha = 1/2) +
+    geom_smooth(color = "gray", alpha = 1/8)
+  
+  
   
   
 
