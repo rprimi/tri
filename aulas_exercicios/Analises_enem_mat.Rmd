@@ -33,7 +33,6 @@ output:
 ```
 
 
-
 ### Preparando o banco: seleciona amostra com alta habilidade
 
 ```{r}
@@ -80,6 +79,10 @@ output:
   
   amst_enem_mt <- readRDS("amst_enem_mt.RDS")
   score_mt2 <- amst_enem_mt[ , 175:219]
+  
+  names(amst_enem_mt)
+  
+  hist(amst_enem_mt$score_mt)
   
 ```
 
@@ -170,8 +173,6 @@ output:
  fscores(mt3pl, method = "EAP", returnER = TRUE)
  
  empirical_rxx(mt3pl)
- 
- 
 
  
  library(psych)
@@ -199,8 +200,7 @@ output:
     mutate(
      eap_mt = (eap_mt*100) + 500 
     ) %>% skim()
- 
- 
+
  
 
 ```
@@ -255,16 +255,14 @@ output:
 
   m3pl <- mirt.model(
     "th_mt = 1-45  
-    PRIOR = (1-45, a1, lnorm, 1, 0.5), 
+    PRIOR = (1-45, a1, lnorm, 1, 0.5),
             (1-45, d, norm, 0, 1),
             (1-45, g, expbeta, 5, 17)"
       )
 
-
   prms <- mirt(score_mt, model = m3pl, TOL = .001, itemtype='3PL', pars = "values")
   mt3pl_full <- mirt(score_mt, model = m3pl, TOL = .001, itemtype='3PL', pars = prms)
-  
- 
+
   prms[prms$name == "d", ]$lbound = -6
   prms[prms$name == "d", ]$ubound = 6
   
@@ -279,7 +277,7 @@ output:
   coef( mt3pl_full , simplify=TRUE, IRTpars=TRUE) %>% view
   coef( mt3pl_amst , simplify=TRUE, IRTpars=TRUE) %>% view
  
-   pars_MT_bilog_full %>% view
+  pars_MT_bilog_full %>% view
   
   mean( pars_MT_bilog_full$INTERCEPTO)
   mean( pars_MT_bilog_full$PAR_B)
@@ -290,10 +288,10 @@ output:
   pars_MT_bilog_amst <- read.table("pars_MT_amostra_bilog.csv", sep = ";", dec = ",", header = TRUE)
   
   pars_MT_bilog_amst <- pars_MT_bilog_amst %>% set_names(paste0, "_am")
+  
   pars_MT_mirt_amst <- coef(mt3pl_amst , simplify=TRUE, IRTpars=TRUE)
   pars_MT_mirt_amst <- pars_MT_mirt_amst$items %>% as.data.frame %>% set_names(paste0, "_am")
- 
-  
+
   item_parms_mt <- bind_cols( pars_MT_bilog_full,  pars_MT_bilog_amst, as.data.frame(pars_MT_mirt_full$items),  pars_MT_mirt_amst )
   
   names(item_parms_mt)
@@ -316,9 +314,7 @@ output:
    ggplot(aes(y=PAR_C, x=g, colour =PAR_B)) + 
     geom_point(alpha = 1/2) +
     geom_smooth(color = "gray", alpha = 1/8)
-  
-  
-  
+
   item_parms_mt %>% 
    ggplot(aes(y=PAR_A_am, x=a_am, colour =PAR_B_am)) + 
     geom_point(alpha = 1/2) +
@@ -333,9 +329,15 @@ output:
    ggplot(aes(y=PAR_C_am, x=g_am, colour =PAR_B_am)) + 
     geom_point(alpha = 1/2) +
     geom_smooth(color = "gray", alpha = 1/8)
-  
-  
-  
-  
 
 ```
+
+```{r}
+
+table(enem_2015$CO_PROVA_CH, enem_2015$CO_PROVA_LC)
+table(enem_2015$CO_PROVA_CH, enem_2015$CO_PROVA_MT)
+table(enem_2015$CO_PROVA_CH, enem_2015$CO_PROVA_CN)
+table(enem_2015$CO_PROVA_CH, enem_2015$CO_PROVA_CN)
+
+```
+

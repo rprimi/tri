@@ -1,5 +1,5 @@
 ---
-title: Modelo de créditos parciais
+title: TRI com escalas politômicas
 author: "Ricardo Primi"
 date: "24 de maio de 2021"
 output: 
@@ -52,7 +52,7 @@ http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/senna_v1_54_ex3.RDS
 ##### 2. Examina base e seleciona os itens
 ```{r}
 
-  dic_a <- dic %>% filter(factor == "A")
+  dic_a <- item_dic %>% filter(factor == "A")
   vars_a <- dic_a$coditem
   labels_a <- dic_a$text
   
@@ -80,7 +80,7 @@ http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/senna_v1_54_ex3.RDS
 ```{r}
 
 
-   dt %>% set_names(dic_a$text) %>% map(frq) 
+  dt %>% set_names(dic_a$text) %>% map(frq) 
  
   it_neg <- dic_a %>% filter(pole == 0) %>% pull(coditem)
   
@@ -143,7 +143,10 @@ http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/senna_v1_54_ex3.RDS
   fit <- tam.fit(tri_a)
   summary(fit)
   
-   plot(tri_a, ngroups = 24)
+   fit <- tam.fit(tri_a3)
+  summary(fit)
+   dev.new()
+   plot(tri_a, ngroups = 10)
    
   fit <- tam.fit(tri_a)
   summary(fit)
@@ -198,19 +201,20 @@ describe_likert5_items(
   item_text = labels_a,
   pole = dic_a$pole
 )
-
+dev.new()
 person_item_map_v3.1( 
   min = -3, 
   max = 2.5, 
   step = .5,
    item_text_max = 48,
-   size_categ_label = 4,
+   size_categ_label = 3,
    size_bar = 4,
   item_tresh =  tam.threshold(tri_a),
   coditem = names(dt),
   item_text = labels_a,
   pole = dic_a$pole,
   theta = tri_a$person$EAP,
+  categ_color =  brewer.pal(5, name = "Greys"),
   probs =   c(.10, .25, .40, .60, .75, .90)
   )
 
@@ -221,7 +225,9 @@ person_item_map_v3.1(
 ### Cores :)
 ```{r}
 
+  dev.new()
   display.brewer.pal(n = 10, name = "Paired" )
+  dev.new()
   display.brewer.pal(n = 10, name = "Greys" )
 
   brewer.pal(10, name = "Paired")
@@ -233,7 +239,7 @@ person_item_map_v3.1(
   categ_color = c("#2B82C9", "#2CCA90", "#EEE657", "#FBB941", "#FB6042","#DF4949")
   categ_color = c("#DF4949", "#FB6042", "#FBB941","#EEE657", "#2CCA90",  "#2B82C9")
   categ_color = c("#DF4949", "#FBB941","#EEE657", "#2CCA90",  "#2B82C9")
-  
+  dev.new()
   show_col(categ_color)
 
 
@@ -251,12 +257,25 @@ https://philchalmers.github.io/mirt/docs/index.html
    mutate( across( all_of(it_neg), ~6 - .x) ) %>%
   # mutate( across( everything(), ~.x - 1)) %>%
    mirt(model = 1, itemtype = 'graded',TOL = .001, technical = list(removeEmptyRows=TRUE))
-  
+ 
+ 
   mirt_a2  <-  dt %>%
    mutate( across( all_of(it_neg), ~6 - .x) ) %>%
-   mutate( across( everything(), ~.x - 1)) %>%
+  # mutate( across( everything(), ~.x - 1)) %>%
    mirt(1, itemtype = 'gpcmIRT',TOL = .001, technical = list(removeEmptyRows=TRUE))
+
+   
+  mirt_a3  <- dt %>%
+   mutate( across( all_of(it_neg), ~6 - .x) ) %>%
+  # mutate( across( everything(), ~.x - 1)) %>%
+    mirt(model = 1, itemtype = 'nominal',TOL = .001, technical = list(removeEmptyRows=TRUE))
+   
+  parms <-  mirt_a3  <- dt %>%
+   mutate( across( all_of(it_neg), ~6 - .x) ) %>%
+    mirt(model = 2, itemtype = 'nominal',TOL = .001, technical = list(removeEmptyRows=TRUE), pars = "values")
   
+   coef(mirt_a3  , simplify=TRUE, irt.parms = TRUE)
+    
   summary(mirt_a )
   coef(mirt_a  , simplify=TRUE, irt.parms = TRUE)
   coef(mirt_a  , simplify=TRUE)
@@ -266,9 +285,16 @@ https://philchalmers.github.io/mirt/docs/index.html
    coef(mirt_a2  , simplify=TRUE, irt.parms = TRUE)
    
    
+  fscores(mirt_a, returnER =TRUE )
+  fscores(mirt_a2, returnER =TRUE )
+  fscores(mirt_a3, returnER =TRUE )
+   
+   empirical_rxx()
+
   dev.new()
   plot(mirt_a2, type = 'rxx')
-   dev.new()
+  
+  dev.new()
   plot(mirt_a, type = 'rxx')
    
   dev.new()
@@ -276,6 +302,11 @@ https://philchalmers.github.io/mirt/docs/index.html
   
   dev.new()
   plot(mirt_a, type = 'trace', which.items = c(1:4, 9:10))
+  
+  
+  dev.new()
+  plot(mirt_a3, type = 'trace')
+  
   
   dev.new()
   plot(mirt_a, type = 'itemscore', which.items = c(1:4, 9:10))
@@ -287,8 +318,11 @@ https://philchalmers.github.io/mirt/docs/index.html
   
   item_score$panel.args
 
+  dev.new()
+  plot(mirt_a3, type = 'itemscore', which.items = 8,   theta_lim = c(-6, 6))
+  dev.new()
+  plot(mirt_a3, type = 'trace', which.items = 8,   theta_lim = c(-6, 6))
   
-
 ```
 ### Rasch-half point tresholds
 ```{r}
@@ -296,8 +330,8 @@ https://philchalmers.github.io/mirt/docs/index.html
   
  rasch_half_point_treh <- function( 
   mirtObj, item = 1, 
-  min = -6, max=6, n_th_points =400,
-  cut_points = c(.50,1.50, 2.50, 3.50) ) {
+  min = -12, max=20, n_th_points =1000,
+  cut_points = c(1.50,2.50,3.50, 4.50) ) {
      
   it <- extract.item(mirtObj, item = item)
   th <- matrix(seq(min,max, length.out=n_th_points))
@@ -319,7 +353,7 @@ https://philchalmers.github.io/mirt/docs/index.html
 
  
  
-rasch_half_point_treh(mirtObj = mirt_a, item=4)
+rasch_half_point_treh(mirtObj = mirt_a, item=6)
  
   temp$df %>% 
     mutate(exp_scr = round(exp_scr,2)
