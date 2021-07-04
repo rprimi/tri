@@ -62,7 +62,7 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 #### Tópico 6: Modelos para escalas politômicas
 
--   Slides: [http://www.labape.com.br/rprimi/TRI/a5_partial_credit.pdf](http://www.labape.com.br/rprimi/TRI/a5_partial_credit.pdf)
+-   Slides: <http://www.labape.com.br/rprimi/TRI/a5_partial_credit.pdf>
 
 -   Rasch-Masters Partial Credit Model
 
@@ -76,4 +76,14 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 #### Tópico 7: Funcionamento Diferencial do Item (DIF)
 
--   Slides: [http://www.labape.com.br/rprimi/TRI/a7_dif.pdf](http://www.labape.com.br/rprimi/TRI/a7_dif.pdf)
+-   Slides: <http://www.labape.com.br/rprimi/TRI/a7_dif.pdf>
+-   Exercício 7: [Ex6_PCM.Rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Ex7_DIF.Rmd)
+
+#### Tópico 8: Avaliação Adaptativa Computadorizada com o CONCERTO (CAT)
+
+-   Convidado especial: Prof. Dr. Carlos Nunes (UFSC)
+
+-   Slides: https://github.com/rprimi/tri/blob/main/concerto/Mesa%20IBAP%202020%20-%20avaliação%20adaptativa.pdf
+
+-   Exercício para o Concerto: https://github.com/rprimi/tri/blob/main/concerto/aula%20CAT.R
+

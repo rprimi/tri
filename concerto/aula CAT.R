@@ -19,7 +19,7 @@ b.params <- cbind(pos = 1:100, a = runif(100, .5, 1.5), b = rnorm(100, 0, 2), c 
 setwd("~/Library/Mobile Documents/com~apple~CloudDocs/Documentos icloud/UFSC/Pos-graduacao/Disciplinas/Aula CAT USF 2021")
 
 library(readr)
-banco_itens <- read_csv("base_inicial_opcoes.csv", 
+banco_itens <- read_csv("concerto/base_inicial_opcoes.csv", 
                         col_types = cols(pos = col_integer()))
 
 b.params<-as.matrix(banco_itens[,c(1,2,3,4)]) # extrai apenas os parametros dos itens

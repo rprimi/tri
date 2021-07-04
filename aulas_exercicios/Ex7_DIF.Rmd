@@ -1,0 +1,360 @@
+---
+title: Analise DIF no ENEM
+author: "Ricardo Primi"
+date: "21 de junho de 2021"
+output: 
+  html_document: 
+    highlight: textmate
+    theme: paper
+---
+
+
+```{r global_options, include=FALSE}
+  knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+```{r}
+  library(tidyverse)
+  library(sjmisc)
+  library(psych)
+  library(mirt)
+```
+
+
+##### Abre banco
+* Faça o dwonload do arquivo de http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/enem_2018_pv_amar.RData
+
+
+```{r }
+  save.image("~/Dropbox (Personal)/TRI/enem_2018/DADOS/enem_2018_pv_amar.RData")
+  load("../../enem_2018/DADOS/enem_2018_pv_amar.RData")
+
+  frq(enem_2018$Q006)
+  frq(enem_2018$SG_UF_ESC)
+
+```
+
+##### Organiza dados
+
+* Separa texto das respostas em dataframes transformando em respostas numéricas  
+```{r}
+
+  names(enem_2018)
+
+  view(enem_2018[1:1000 , 89:110])
+  view(enem_2018[ , 97])
+ 
+  vec <-c("1","2","3","4","5","7","8", "9")
+  names(vec)<-c("A", "B", "C", "D", "E", "X", "\\.", "\\*")
+  
+  enem_2018$TX_RESPOSTAS_CN[1]
+  vec
+  
+  v <- c(A="1", B="2", C="3")
+    str_replace_all(enem_2018$TX_RESPOSTAS_CN[1:10], vec) %>% 
+      str_split( "", simplify = T) %>% as.data.frame %>% 
+      map_df(as.integer)
+ 
+  separa <- function(txt_resp, vec, prova) {
+    # Transforma em A-E em 1-5 número
+    # as 45 primeiras posições deste campo são referentes as respectivas respostas. 
+    # O asterisco (*) indica dupla marcação e ponto (.) resposta em branco.
+
+    txt_resp <- str_replace_all(txt_resp, vec) %>% 
+      str_split( "", simplify = T) %>% as.data.frame %>% 
+      map_df(as.numeric)
+    
+    n_vars <- dim(txt_resp)[2]
+    
+    txt_resp <- txt_resp %>% set_names(paste0(prova, 1:n_vars))
+  
+    return(txt_resp)
+  }
+
+  resp_cn <- separa(enem_2018$TX_RESPOSTAS_CN, vec, prova = "CN_")
+  resp_ch <- separa(enem_2018$TX_RESPOSTAS_CH, vec, prova = "CH_")
+  resp_lc <- separa(enem_2018$TX_RESPOSTAS_LC, vec, prova = "LC_")
+  resp_mt <- separa(enem_2018$TX_RESPOSTAS_MT, vec, prova = "MT_")
+
+
+```
+
+
+##### Análise Psicométrica 
+```{r}
+ unique(enem_2018$TX_GABARITO_MT)
+
+  gabMT <- as.character(str_split(unique(enem_2018$TX_GABARITO_MT),"", simplify = TRUE))
+  gabCN <- as.character(str_split(unique(enem_2018$TX_GABARITO_CN),"", simplify = TRUE))
+  gabCH <- as.character(str_split(unique(enem_2018$TX_GABARITO_CH),"", simplify = TRUE))
+  gabLC <- as.character(str_split(unique(enem_2018$TX_GABARITO_LC),"", simplify = TRUE))
+  
+
+  gabMT <- vec[gabMT] %>% as.integer
+  gabCN <- vec[gabCN] %>% as.integer
+  gabCH <- vec[gabCH] %>% as.integer
+  gabLC <- vec[gabLC] %>% as.integer
+     
+  
+
+  psicomMT <- score.multiple.choice(
+    key = gabMT,
+    data = resp_mt, 
+    totals = TRUE, 
+    short = FALSE, 
+    missing = FALSE
+    )
+ 
+  psicomCN <- score.multiple.choice(
+    key = gabCN,
+    data = resp_cn, 
+    totals = TRUE, 
+    short = FALSE, 
+    missing = FALSE
+    )
+ 
+  psicomLC <- score.multiple.choice(
+    key = gabLC,
+    data = resp_lc, 
+    totals = TRUE, 
+    short = FALSE, 
+    missing = FALSE
+    )
+
+ psicomCH <- score.multiple.choice(
+    key = gabCH,
+    data = resp_ch, 
+    totals = TRUE, 
+    short = FALSE, 
+    missing = FALSE
+    )
+ 
+ hist(psicomCH$scores)
+ hist(psicomMT$scores)
+ hist(psicomCN$scores)
+ hist(psicomLC$scores)
+ 
+ print.psych(psicomCH)
+ print.psych(psicomMT)
+ print.psych(psicomCN)
+ print.psych(psicomLC)
+ 
+
+  score_lc <- as.data.frame(
+    score.multiple.choice(
+     key = gabLC,
+     data = resp_lc, 
+     score = FALSE
+    )
+  )
+
+  
+  
+
+```
+
+
+##### Testando DIF em relação ao gênero
+
+* Primeiro vamos testar se há diferenças nas notas entre homens e mulheres e nível socio economico
+
+```{r}
+ 
+   frq(enem_2018$IN_NOME_SOCIAL)
+    
+  enem_2018$Q006 <- factor(
+  enem_2018$Q006,levels = 
+  c('A','B','C','D','E','F','G','H','I','J',
+  'K','L','M','N','O','P','Q'), 
+  labels=c('Nenhuma renda.',
+          'Até R$ 954,00',
+          'De R$ 954,01 até R$ 1.431,00',
+          'De R$ 1.431,01 até R$ 1.908,00',
+          'De R$ 1.908,01 até R$ 2.385,00',
+          'De R$ 2.385,01 até R$ 2.862,00',
+          'De R$ 2.862,01 até R$ 3.816,00',
+          'De R$ 3.816,01 até R$ 4.770,00',
+          'De R$ 4.770,01 até R$ 5.724,00',
+          'De R$ 5.724,01 até R$ 6.678,00',
+          'De R$ 6.678,01 até R$ 7.632,00',
+          'De R$ 7.632,01 até R$ 8.586,00',
+          'De R$ 8.586,01 até R$ 9.540,00',
+          'De R$ 9.540,01 até R$ 11.448,00',
+          'De R$ 11.448,01 até R$ 14.310,00',
+          'De R$ 14.310,01 até R$ 19.080,00',
+          'Mais de R$ 19.080,00')
+  )
+ enem_2018$TP_DEPENDENCIA_ADM_ESC <- 
+   factor(enem_2018$TP_DEPENDENCIA_ADM_ESC,levels =  c(1, 2, 3, 4), 
+  labels=c('Federal', 'Estadual','Municipal','Privada'))
+  
+ 
+  frq(enem_2018$TP_DEPENDENCIA_ADM_ESC)
+
+  
+  library(jmv)
+  
+  jmv::ANOVA(formula = NU_NOTA_MT ~ TP_DEPENDENCIA_ADM_ESC, enem_2018,
+             emmPlots = TRUE, emmTables = TRUE, emMeans = ~ TP_DEPENDENCIA_ADM_ESC )
+  
+  jmv::ANOVA(formula = NU_NOTA_LC ~ TP_DEPENDENCIA_ADM_ESC, enem_2018,
+             emmPlots = TRUE, emmTables = TRUE, emMeans = ~ TP_DEPENDENCIA_ADM_ESC,
+             effectSize = 'eta')
+  
+  enem_2018$grp <- case_when(
+    enem_2018$TP_DEPENDENCIA_ADM_ESC == 'Privada' ~ 0,
+    enem_2018$TP_DEPENDENCIA_ADM_ESC == 'Estadual' ~ 1,
+    TRUE ~ NA_real_
+  )
+  
+  frq(enem_2018$grp)
+  
+  table(enem_2018$TP_DEPENDENCIA_ADM_ESC, enem_2018$grp )
+ 
+  
+```
+* Testando DIF usando os difR. Ver: https://ppw.kuleuven.be/okp/_pdf/Magis2010AGFAA.pdf 
+
+```{r }
+
+library(difNLR) 
+library(difR) 
+library(ShinyItemAnalysis)
+library(sjmisc)
+
+dif_lc <- difLogistic(
+  Data = score_lc, 
+  group = enem_2018$grp, 
+  focal.name = 1)
+
+
+dif_lc
+
+plot(dif_lc)
+
+
+ShinyItemAnalysis::plotDIFLogistic(x =dif_lc, Data = score_lc , 
+                                   group = enem_2018$grp, item = 12 )
+
+ fit <-  ddfMLR(Data = resp_lc, focal.name = 1,
+      group = enem_2018$grp, key = gabLC)
+ 
+ 
+ plot(fit, item = 6)
+ 
+
+```
+
+![Item 8](mat_q8.jpg)  
+
+```{r}
+library(readr)
+banco_todo <- read_csv("~/Dropbox (Personal)/TRI/enem_2018/DADOS/banco_todo.csv")
+
+frq(banco_todo$respecializado_nome_social)
+
+banco_todo$grp <- as.integer(banco_todo$respecializado_nome_social)
+
+frq(banco_todo$grp) 
+
+class(banco_todo)
+names(banco_todo)
+
+dif_lc2 <- difLogistic(
+  Data = as.data.frame(banco_todo[, 2:41]), 
+  group = banco_todo$grp, 
+  focal.name = 1)
+
+ShinyItemAnalysis::plotDIFLogistic(
+  x =dif_lc2, Data = as.data.frame(banco_todo[, 2:41]) , 
+  group = banco_todo$grp, item = 6 
+  )
+
+```
+
+
+```{r}
+
+plotDIFLogistic(data = score_mt, group = enem_2015$fem, item = 9 )
+plotDIFLogistic(data = score_mt, group = enem_2015$fem, item = 31)
+plotDIFLogistic(data = score_mt, group = enem_2015$fem, item = 34 )
+plotDIFLogistic(data = score_mt, group = enem_2015$fem, item = 43 )
+
+```
+
+
+##### Resolvendo DIF
+
+```{r eval = FALSE, echo=FALSE}
+
+  # 11, 16, 32 , 38
+  ch_m3pl_dif <- multipleGroup(
+      data = score_ch, model =  m3pl, 
+      group = enem_2015$TP_SEXO, 
+      invariance = c( ch_itens[c(2, 5, 11, 16, 21, 22, 28, 32, 38, 39)], 
+        'free_means', 'free_var'),
+      itemtype="3PL",
+       TOL = .001
+                )
+
+  ch_m3pl_pars_dif <- coef(ch_m3pl_dif, simplify=TRUE, IRTpars=TRUE)
+
+
+```
+
+```{r eval = FALSE, echo=FALSE}
+  ch_m3pl_pars_dif
+  
+  describe(ch_m3pl_pars_dif$F$items)
+  describe(ch_m3pl_pars_dif$M$items)
+  
+  gf_point(ch_m3pl_pars_dif$F$items[ , 2] ~ ch_m3pl_pars_dif$M$items[ , 2])
+  
+  
+
+```
+
+
+```{r eval = FALSE, echo=FALSE}
+ 
+  theta_ch5 = fscores(ch_m3pl_dif , method = "EAP", full.scores.SE = TRUE,
+                      mean = c(M, M), cov = c(DP**2, DP**2))
+
+
+
+  enem_2015 <- cbind(enem_2015[, 1:172], theta_ch5 = theta_ch5[ , 1])
+  names(enem_2015) 
+   theta_ch6 = fscores(ch_m3pl_dif , method = "WLE")
+   
+  enem_2015 <- cbind(enem_2015, theta_ch6 = theta_ch6[ , 1])
+ 
+ 
+
+```
+
+
+```{r}
+
+  names(enem_2015)
+  
+  library(jmv)
+  
+  descriptives(formula = NU_NOTA_MT ~ TP_SEXO, enem_2015, hist=T, box=T)
+  descriptives(formula = NU_NOTA_CH ~ TP_SEXO, enem_2015, hist=T, box=T)
+  descriptives(formula = NU_NOTA_LC ~ TP_SEXO, enem_2015, hist=T, box=T)
+  descriptives(formula = NU_NOTA_CN ~ TP_SEXO, enem_2015, hist=T, box=T)
+  
+  
+  ttestIS(formula = NU_NOTA_MT ~ TP_SEXO, enem_2015, meanDiff = T, effectSize = T)
+  ttestIS(formula = NU_NOTA_CH ~ TP_SEXO, enem_2015, meanDiff = T, effectSize = T)
+  ttestIS(formula = NU_NOTA_LC ~ TP_SEXO, enem_2015, meanDiff = T, effectSize = T)
+  ttestIS(formula = NU_NOTA_CN ~ TP_SEXO, enem_2015, meanDiff = T, effectSize = T)
+  
+```
+
+
+### Exercício 5 Tente Você
+
+* Faça as mesmas análises acima com outra variável de interesse, como por exemplo, escolaridade da mae
+
+
