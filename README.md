@@ -87,3 +87,6 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 -   Exercício para o Concerto: https://github.com/rprimi/tri/blob/main/concerto/aula%20CAT.R
 
+
+
+
