@@ -74,6 +74,15 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 -   Exercício 6: [Ex6_PCM.Rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Ex6_PCM.Rmd)
 
+
 #### Tópico 7: Funcionamento Diferencial do Item (DIF)
 
 -   Slides: [http://www.labape.com.br/rprimi/TRI/a7_dif.pdf](http://www.labape.com.br/rprimi/TRI/a7_dif.pdf)
+
+
+#### Tópico 8: Avaliação Adaptativa Computadorizada com o CONCERTO (CAT)
+
+-   Convidado especial: Prof. Dr. Carlos Nunes (UFSC)
+
+-   Slides:[https://github.com/rprimi/tri/blob/main/concerto/Mesa IBAP 2020 - avaliação adaptativa.pdf] (https://github.com/rprimi/tri/blob/main/concerto/Mesa IBAP 2020 - avaliação adaptativa.pdf)
+
