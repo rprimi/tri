@@ -1,0 +1,347 @@
+1
+
+                               BILOG-MG V3.0
+                              REV 19990104.1300
+
+      BILOG-MG ITEM MAINTENANCE PROGRAM: LOGISTIC ITEM RESPONSE MODEL
+
+
+                               DISTRIBUTED BY
+
+                    SCIENTIFIC SOFTWARE INTERNATIONAL, INC.
+                       7383 N. LINCOLN AVENUE, SUITE 100   
+                               CHICAGO, IL 60646           
+                                 (800) 247-6113            
+                                 (847) 675-0720            
+                        WWW: http:://www.ssicentral.com    
+
+    PROGRAM COPYRIGHT HELD BY SCIENTIFIC SOFTWARE INTERNATIONAL, INC. 2002
+
+          DISTRIBUTION OR USE UNAUTHORIZED BY SSI, INC. IS PROHIBITED
+
+1                   *** BILOG-MG ITEM MAINTENANCE PROGRAM ***
+
+
+                              *** PHASE 1  ***
+
+
+ Exercício calibração de MATEMATICA                                              
+ Aula de TRI                                                                     
+
+
+
+
+ >COMMENTS                                                                       
+ Exercício aula de TRI                                                           
+                                                                                 
+
+
+ >GLOBAL   DFNAME='amostraMT.dat'                                                
+
+           NPARM=3, LOGISTIC, SAVE;                                              
+
+
+
+ FILE ASSIGNMENT AND DISPOSITION
+ ===============================
+
+
+ SUBJECT DATA INPUT FILE     AMOSTRAMT.DAT
+ BILOG-MG MASTER DATA FILE   MF.DAT
+                                            WILL BE CREATED FROM DATA FILE
+
+ CALIBRATION DATA FILE       CF.DAT
+                                            WILL BE CREATED FROM DATA FILE
+
+ ITEM PARAMETERS FILE        IF.DAT
+                                            WILL BE CREATED THIS RUN
+
+ CASE SCALE-SCORE FILE       SF.DAT
+ CASE WEIGHTING                             NONE EMPLOYED
+
+ ITEM RESPONSE MODEL                        3 PARAMETER LOGISTIC
+                                            LOGIT  METRIC (I.E., D = 1.0)
+
+
+
+
+ >SAVE     SCORE='MT.SCO'                                                        
+
+           PARM='MT.PAR',                                                        
+
+           EXPECTED='MT.EXP';                                                    
+
+ BILOG-MG SAVE FILES
+
+ [OUTPUT FILES]
+
+ ITEM PARAMETERS FILE        MT.PAR
+
+ CASE SCALE-SCORE FILE       MT.SCO
+
+ EXPECTED FREQUENCY FILE     MT.EXP
+
+
+
+ >LENGTH   NITems=45;                                                            
+
+
+
+ TEST LENGTH SPECIFICATIONS
+ ==========================
+
+
+ MAIN TEST LENGTHS:         45
+
+
+
+
+
+ >INPUT    KFName='gabarito.txt', NTOT=45, NALt=5,                               
+
+           NIDCHAR=6;                                                            
+
+
+
+ DATA INPUT SPECIFICATIONS
+ =========================
+
+ NUMBER OF FORMAT LINES                           1
+ NUMBER OF ITEMS IN INPUT STREAM                 45
+ NUMBER OF RESPONSE ALTERNATIVES                  5
+ NUMBER OF SUBJECT ID CHARACTERS                  6
+ NUMBER OF GROUPS                                 1
+ NUMBER OF TEST FORMS                             1
+ TYPE OF DATA                               SINGLE-SUBJECT DATA, NO CASE WEIGHTS
+ MAXIMUM SAMPLE SIZE FOR ITEM CALIBRATION  10000000
+ ALL SUBJECTS INCLUDED IN RUN
+
+
+
+
+
+ >ITEMS    INUMBERS=(1(1)45),                                                    
+
+           INAME=(                                                               
+
+           ENEM1, ENEM2, ENEM3, ENEM4, ENEM5,                                    
+
+           ENEM6, ENEM7, ENEM8, ENEM9, ENEM10,                                   
+
+           ENEM11, ENEM12, ENEM13, ENEM14, ENEM15,                               
+
+           ENEM16, ENEM17, ENEM18, ENEM19, ENEM20,                               
+
+           ENEM21, ENEM22, ENEM23, ENEM24, ENEM25,                               
+
+           ENEM26, ENEM27, ENEM28, ENEM29, ENEM30,                               
+
+           ENEM31, ENEM32, ENEM33, ENEM34, ENEM35,                               
+
+           ENEM36, ENEM37, ENEM38, ENEM39, ENEM40,                               
+
+           ENEM41, ENEM42, ENEM43, ENEM44, ENEM45                                
+
+           );                                                                    
+
+
+
+ TEST SPECIFICATIONS
+ ===================
+
+
+
+ >TEST1  TNAME='MT', INUmbers=(1(1)45);                                          
+
+
+ TEST NUMBER:   1    TEST NAME: MT      
+ NUMBER OF ITEMS:   45
+
+
+         ITEM   ITEM       ITEM   ITEM       ITEM   ITEM 
+        NUMBER  NAME      NUMBER  NAME      NUMBER  NAME 
+       -----------------------------------------------------
+             1  ENEM1         16  ENEM16        31  ENEM31  
+             2  ENEM2         17  ENEM17        32  ENEM32  
+             3  ENEM3         18  ENEM18        33  ENEM33  
+             4  ENEM4         19  ENEM19        34  ENEM34  
+             5  ENEM5         20  ENEM20        35  ENEM35  
+             6  ENEM6         21  ENEM21        36  ENEM36  
+             7  ENEM7         22  ENEM22        37  ENEM37  
+             8  ENEM8         23  ENEM23        38  ENEM38  
+             9  ENEM9         24  ENEM24        39  ENEM39  
+            10  ENEM10        25  ENEM25        40  ENEM40  
+            11  ENEM11        26  ENEM26        41  ENEM41  
+            12  ENEM12        27  ENEM27        42  ENEM42  
+            13  ENEM13        28  ENEM28        43  ENEM43  
+            14  ENEM14        29  ENEM29        44  ENEM44  
+            15  ENEM15        30  ENEM30        45  ENEM45  
+       -----------------------------------------------------
+
+
+
+
+
+
+ FORM SPECIFICATIONS
+ ===================
+
+
+ ITEMS READ ACCORDING TO SPECIFICATIONS ON THE ITEMS COMMAND
+
+
+ FORMAT FOR DATA INPUT IS:
+
+ (6A1,45A1)                                                                      
+
+
+
+ KEY SPECIFICATIONS
+ ==================
+
+
+ ANSWER KEY:
+
+ 111111111111111111111111111111111111111111111
+
+
+
+ OBSERVATION #     1  WEIGHT:     1.0000  ID : 000001
+
+
+
+ SUBTEST #:   1    MT      
+   GROUP #:   1            
+
+     TRIED    RIGHT
+    45.000    3.000
+
+
+ ITEM       1     2     3     4     5     6     7     8     9    10
+ TRIED    1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0
+ RIGHT    0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0   1.0
+
+
+ ITEM      11    12    13    14    15    16    17    18    19    20
+ TRIED    1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0
+ RIGHT    0.0   0.0   0.0   0.0   1.0   0.0   0.0   0.0   0.0   0.0
+
+
+ ITEM      21    22    23    24    25    26    27    28    29    30
+ TRIED    1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0
+ RIGHT    0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0
+
+
+ ITEM      31    32    33    34    35    36    37    38    39    40
+ TRIED    1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0
+ RIGHT    0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0   1.0   0.0
+
+
+ ITEM      41    42    43    44    45
+ TRIED    1.0   1.0   1.0   1.0   1.0
+ RIGHT    0.0   0.0   0.0   0.0   0.0
+
+
+
+ OBSERVATION #     2  WEIGHT:     1.0000  ID : 000002
+
+
+
+ SUBTEST #:   1    MT      
+   GROUP #:   1            
+
+     TRIED    RIGHT
+    45.000    3.000
+
+
+ ITEM       1     2     3     4     5     6     7     8     9    10
+ TRIED    1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0
+ RIGHT    0.0   0.0   0.0   1.0   0.0   0.0   0.0   0.0   0.0   0.0
+
+
+ ITEM      11    12    13    14    15    16    17    18    19    20
+ TRIED    1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0
+ RIGHT    0.0   0.0   1.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0
+
+
+ ITEM      21    22    23    24    25    26    27    28    29    30
+ TRIED    1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0
+ RIGHT    0.0   0.0   0.0   0.0   1.0   0.0   0.0   0.0   0.0   0.0
+
+
+ ITEM      31    32    33    34    35    36    37    38    39    40
+ TRIED    1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0   1.0
+ RIGHT    0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0   0.0
+
+
+ ITEM      41    42    43    44    45
+ TRIED    1.0   1.0   1.0   1.0   1.0
+ RIGHT    0.0   0.0   0.0   0.0   0.0
+
+
+
+     10639 OBSERVATIONS READ FROM FILE:   AMOSTRAMT.DAT
+     10639 OBSERVATIONS WRITTEN TO FILE:  MF.DAT
+
+
+ ITEM STATISTICS FOR SUBTEST MT      
+
+                                                      ITEM*TEST CORRELATION
+ ITEM   NAME        #TRIED    #RIGHT   PCT      LOGIT    PEARSON  BISERIAL
+ -------------------------------------------------------------------------
+    1   ENEM1     10639.0    3001.0    28.2     0.93     0.274    0.365
+    2   ENEM2     10639.0    3347.0    31.5     0.78     0.410    0.536
+    3   ENEM3     10639.0    7521.0    70.7    -0.88     0.589    0.779
+    4   ENEM4     10639.0    3992.0    37.5     0.51     0.282    0.360
+    5   ENEM5     10639.0    4017.0    37.8     0.50     0.389    0.496
+    6   ENEM6     10639.0    6037.0    56.7    -0.27     0.624    0.786
+    7   ENEM7     10639.0    3258.0    30.6     0.82     0.335    0.441
+    8   ENEM8     10639.0    6227.0    58.5    -0.34     0.609    0.769
+    9   ENEM9     10639.0    6049.0    56.9    -0.28     0.653    0.823
+   10   ENEM10    10639.0    1369.0    12.9     1.91     0.063    0.101
+   11   ENEM11    10639.0    2880.0    27.1     0.99     0.298    0.400
+   12   ENEM12    10639.0    3558.0    33.4     0.69     0.354    0.459
+   13   ENEM13    10639.0    4403.0    41.4     0.35     0.440    0.557
+   14   ENEM14    10639.0    1164.0    10.9     2.10     0.097    0.161
+   15   ENEM15    10639.0    5086.0    47.8     0.09     0.472    0.592
+   16   ENEM16    10639.0    5200.0    48.9     0.04     0.397    0.497
+   17   ENEM17    10639.0    4092.0    38.5     0.47     0.332    0.422
+   18   ENEM18    10639.0    3774.0    35.5     0.60     0.443    0.569
+   19   ENEM19    10639.0    6072.0    57.1    -0.28     0.581    0.732
+   20   ENEM20    10639.0    2453.0    23.1     1.21     0.322    0.446
+   21   ENEM21    10639.0    4036.0    37.9     0.49     0.408    0.520
+   22   ENEM22    10639.0    2852.0    26.8     1.00     0.143    0.192
+   23   ENEM23    10639.0    1212.0    11.4     2.05     0.069    0.114
+   24   ENEM24    10639.0    3648.0    34.3     0.65     0.549    0.709
+   25   ENEM25    10639.0    3503.0    32.9     0.71     0.470    0.611
+   26   ENEM26    10639.0    5008.0    47.1     0.12     0.453    0.569
+   27   ENEM27    10639.0    4492.0    42.2     0.31     0.425    0.537
+   28   ENEM28    10639.0    4421.0    41.6     0.34     0.478    0.604
+   29   ENEM29    10639.0    4278.0    40.2     0.40     0.522    0.661
+   30   ENEM30    10639.0    1525.0    14.3     1.79     0.079    0.123
+   31   ENEM31    10639.0    2179.0    20.5     1.36     0.323    0.458
+   32   ENEM32    10639.0    3129.0    29.4     0.88     0.315    0.417
+   33   ENEM33    10639.0    3448.0    32.4     0.74     0.397    0.517
+   34   ENEM34    10639.0    5074.0    47.7     0.09     0.567    0.711
+   35   ENEM35    10639.0    2622.0    24.6     1.12     0.208    0.285
+   36   ENEM36    10639.0    3460.0    32.5     0.73     0.329    0.428
+   37   ENEM37    10639.0    5738.0    53.9    -0.16     0.489    0.614
+   38   ENEM38    10639.0    5927.0    55.7    -0.23     0.603    0.758
+   39   ENEM39    10639.0    3961.0    37.2     0.52     0.504    0.644
+   40   ENEM40    10639.0    2624.0    24.7     1.12     0.188    0.257
+   41   ENEM41    10639.0    1965.0    18.5     1.48     0.101    0.147
+   42   ENEM42    10639.0    5292.0    49.7     0.01     0.512    0.641
+   43   ENEM43    10639.0    6968.0    65.5    -0.64     0.516    0.666
+   44   ENEM44    10639.0    3383.0    31.8     0.76     0.397    0.518
+   45   ENEM45    10639.0    7097.0    66.7    -0.69     0.552    0.715
+ -------------------------------------------------------------------------
+
+
+
+       596 BYTES OF NUMERICAL WORKSPACE USED OF 204800000 AVAILABLE IN PHASE-1
+
+      4708 BYTES OF CHARACTER WORKSPACE USED OF 204800000 AVAILABLE IN PHASE-1
+
+           06/06/2021  18:25:21
+
+

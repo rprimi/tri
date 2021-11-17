@@ -60,6 +60,8 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 -   Comparação de calibrações via mirt e BILOG-MG na prova de Matemática: [Analises_enem_mat.Rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Analises_enem_mat.Rmd)
 
+-   Primi, R & Cicchetto, A. A. (2018). [Como os escores do ENEM são atribuídos pela TRI?](http://www.labape.com.br/rprimi/TRI/Como%20os%20escores%20do%20ENEM%20sao%20atribuidos%20pela%20TRI.pdf) Artigo apresentado no VI CONBRATRI. Juiz de Fora: ABAVE/CONBRATRI
+
 #### Tópico 6: Modelos para escalas politômicas
 
 -   Slides: <http://www.labape.com.br/rprimi/TRI/a5_partial_credit.pdf>
@@ -83,10 +85,6 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 -   Convidado especial: Prof. Dr. Carlos Nunes (UFSC)
 
--   Slides: https://github.com/rprimi/tri/blob/main/concerto/Mesa%20IBAP%202020%20-%20avaliação%20adaptativa.pdf
+-   Slides: [https://github.com/rprimi/tri/blob/main/concerto/Mesa%20IBAP%202020%20-%20avaliação%20adaptativa.pdf](https://github.com/rprimi/tri/blob/main/concerto/Mesa%20IBAP%202020%20-%20avaliação%20adaptativa.pdf)
 
--   Exercício para o Concerto: https://github.com/rprimi/tri/blob/main/concerto/aula%20CAT.R
-
-
-
-
+-   Exercício para o Concerto: <https://github.com/rprimi/tri/blob/main/concerto/aula%20CAT.R>
