@@ -32,7 +32,7 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 -   Slides: <http://www.labape.com.br/rprimi/TRI/a3_rasch.pdf>
 
-    -   Exercício 3: Calibração Rasch: [Ex3_Rasch.rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Ex3_Rasch.rmd)
+    -   Exercício 3: Calibração Rasch: [Ex3_Rasch.rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Ex3_Rasch.Rmd)
 
     -   Dados gf_matrix [gf_matrix.xlsx](http://www.labape.com.br/rprimi/TRI/2017_exercicios/gf_matrix.xlsx)
 
