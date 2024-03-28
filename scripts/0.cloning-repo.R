@@ -13,4 +13,4 @@
 # 6) Adjust the path in the "Create project as subrepository of" box to the path you want in your computer
 # 7) Click on "Create repository" 
 
-# After creating the repository, click "Pull" in the Git tab of the RStudio interface to update the content from rprimi's account.
+# After creating the repository, click "Pull" in the Git tab of the RStudio interface to update the content from rprimi's account every time you open the R project.
