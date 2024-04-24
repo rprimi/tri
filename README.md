@@ -8,13 +8,15 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 #### Tópico 1: Psicometria clássica
 
--   Programa: <http://www.labape.com.br/rprimi/TRI/Prog.%20TRI%202021%201o%20Semestre.docx>. Atualizado 4/07/2021.
+-   Programa 2024: [Programa Tri 2024](aulas_exercicios/programa_tri_2024.docx)
+
+-   Programa 2021: <http://www.labape.com.br/rprimi/TRI/Prog.%20TRI%202021%201o%20Semestre.docx>
 
 -   Slides: <http://www.labape.com.br/rprimi/TRI/a1_cct_2021.pptx>
 
 -   Exercício 1a: Leia o paper Primi (2012, link abaixo) revisando os conceitos de psicometria e depois explore os padrões de resposta na planilha em excel tentando entender os padrões de resposta que aumentam e diminuem o coeficiente alfa de cronbach.
 
-    -   [Primi, R. (2012). Psicometria: Fundamentos matemáticos da Teoria Clássica dos Testes. *Avaliação Psicológica*, *11*(2), 297–307](http://pepsic.bvsalud.org/pdf/avp/v11n2/v11n2a15.pdf).
+    -   [Primi, R. (2012). Psicometria: Fundamentos matemáticos da Teoria Clássica dos Testes. *Avaliação Psicológica*, *11*(2), 297--307](http://pepsic.bvsalud.org/pdf/avp/v11n2/v11n2a15.pdf).
 
     -   [Planilha alfa.xlsx](http://www.labape.com.br/rprimi/TRI/2017_exercicios/alfa.xlsx)
 
@@ -54,7 +56,7 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 #### Tópico 5: Modelo de 2 e 3 parâmetros. Como o ENEM é pontuado ?
 
--   Slides: [http://www.labape.com.br/primi/TRI/a6_2\_3_param.pdf](http://www.labape.com.br/rprimi/TRI/a6_2_3_param.pdf)
+-   Slides: [http://www.labape.com.br/primi/TRI/a6_2_3_param.pdf](http://www.labape.com.br/rprimi/TRI/a6_2_3_param.pdf)
 
 -   Exercício 4: [Ex5_2PL_3PL.Rmd](https://github.com/rprimi/tri/blob/main/aulas_exercicios/Ex5_2PL_3PL.Rmd)
 
@@ -85,6 +87,6 @@ Bem vindo ao curso de Teoria de Resposta ao Item com R do [Progama de Mestrado e
 
 -   Convidado especial: Prof. Dr. Carlos Nunes (UFSC)
 
--   Slides: [https://github.com/rprimi/tri/blob/main/concerto/Mesa%20IBAP%202020%20-%20avaliação%20adaptativa.pdf](https://github.com/rprimi/tri/blob/main/concerto/Mesa%20IBAP%202020%20-%20avaliação%20adaptativa.pdf)
+-   Slides: <https://github.com/rprimi/tri/blob/main/concerto/Mesa%20IBAP%202020%20-%20avaliação%20adaptativa.pdf>
 
 -   Exercício para o Concerto: <https://github.com/rprimi/tri/blob/main/concerto/aula%20CAT.R>

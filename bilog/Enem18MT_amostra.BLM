@@ -1,0 +1,31 @@
+Exercício calibração de MATEMATICA
+Aula de TRI
+>COMMENTS
+Exercício aula de TRI
+
+>GLOBAL   DFNAME='amostraMT.dat'
+          NPARM=3, LOGISTIC, SAVE;
+>SAVE     SCORE='MT.SCO'
+          PARM='MT.PAR',
+          EXPECTED='MT.EXP';
+>LENGTH   NITems=45;
+>INPUT    KFName='gabarito.txt', NTOT=45, NALt=5,
+          NIDCHAR=6;
+>ITEMS    INUMBERS=(1(1)45),
+          INAME=(
+          ENEM1, ENEM2, ENEM3, ENEM4, ENEM5, 
+          ENEM6, ENEM7, ENEM8, ENEM9, ENEM10, 
+          ENEM11, ENEM12, ENEM13, ENEM14, ENEM15, 
+          ENEM16, ENEM17, ENEM18, ENEM19, ENEM20, 
+          ENEM21, ENEM22, ENEM23, ENEM24, ENEM25, 
+          ENEM26, ENEM27, ENEM28, ENEM29, ENEM30, 
+          ENEM31, ENEM32, ENEM33, ENEM34, ENEM35, 
+          ENEM36, ENEM37, ENEM38, ENEM39, ENEM40, 
+          ENEM41, ENEM42, ENEM43, ENEM44, ENEM45
+          );
+>TEST1  TNAME='MT', INUmbers=(1(1)45);
+(6A1,45A1)
+>CALIB   NQPT=40, CYCles=40, NEWTON=0,CRIT=0.01,NORMAL, 
+         NOFLOAT, ACCEL=0.2,
+         NORMAL,NOFLOAT;
+>SCORE    NOPrint, METhod=2;
