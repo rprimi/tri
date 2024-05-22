@@ -1,0 +1,174 @@
+---
+title: "CCT e Rasch"
+format: html
+editor: source
+---
+- Winsteps
+- Conquest
+- RUMMM
+
+```{r}
+# load the TAM package
+library(TAM) 
+library(tidyverse)
+
+data(data.sim.rasch) 
+#show the first few lines of the data set
+head(data.sim.rasch)
+
+# mostra dimensão da matriz
+dim(data.sim.rasch)
+
+#shorten the data name
+resp <- data.sim.rasch 
+
+#compute test scores
+scores <- apply(resp, 1, sum) 
+
+#compute item means
+head(scores) 
+
+itemscores <- apply(resp,2,mean) 
+
+head(itemscores)
+
+#compute item discrimination for item 1
+#discrimination for item 1
+#
+cor(scores,resp[, 1]) 
+
+#better, remove item 1 score from total score
+cor(scores-resp[,1], resp[,1]) 
+
+#compute item discrimination for all items
+#
+rdrop <- function(x){cor(scores-x,x)}
+
+disc <- apply(resp,2, rdrop)
+disc
+
+#Easier to use the CTT package for all the above
+library(CTT)
+IA <- CTT::itemAnalysis(resp, )
+
+names(IA)
+
+IA$itemReport %>% view
+#store results in an object called IA
+IA$itemReport
+IA$alpha
+
+
+```
+
+```{r}
+
+resp <- as.data.frame(resp)
+resp$score = scores
+resp  <- resp %>% arrange(score)
+
+resp_p <- resp %>% 
+  group_by(score) %>%
+  summarise(across(I1:I40, mean))
+
+
+ggplot(resp_p, aes(x = score, y = I1)) + geom_line()
+ggplot(resp_p, aes(x = score, y = I10)) + geom_line(color = "red")
+ggplot(resp_p, aes(x = score, y = I40)) + geom_line(color = "blue")
+
+```
+
+```{r}
+install.packages("paletteer")
+
+library(paletteer)
+
+resp_p_long <- resp_p %>% 
+  pivot_longer(cols = I1:I40, names_to = "coditem", values_to = "p")
+  
+resp_p_long %>% 
+  ggplot(aes(x = score, y = p, color = coditem)) +
+  geom_line() 
+
+
+```
+
+
+```{r}
+CTT::cttICC(resp$score, itemVector = resp[ , 1:5])
+
+```
+
+```{r}
+library(readxl)
+gf_matrix_resp <- read_excel("gf_matrix_resp.xlsx")
+gf_key <- read_excel("gf_matrix_resp.xlsx", sheet = "keys")
+
+```
+
+```{r}
+names(gf_matrix_resp)
+
+gf_matrix_score <- CTT::score(gf_matrix_resp[ , 3:17], key = gf_key$key)
+
+gf_matrix_scored_resp <- CTT::score(gf_matrix_resp[ , 3:17], key = gf_key$key, output.scored = T)
+
+names(gf_matrix_scored_resp)
+
+gf_matrix_scored_resp$score
+gf_matrix_scored_resp$scored
+
+gf_CTT <- CTT::itemAnalysis(gf_matrix_scored_resp$scored)
+gf_CTT[["itemReport"]]
+
+
+```
+```{r}
+data <- gf_matrix_scored_resp$scored %>% 
+  as.data.frame %>% 
+  mutate(
+    across(everything(), ~replace_na(.x, 0)),
+    score =  apply(., 1, sum)
+    )
+
+
+  
+data_g <- data %>% 
+  mutate(score = apply(., 1, sum)) %>%
+  group_by(score) %>%
+  summarise(across(ri01:ri15, mean)) 
+  
+data_g_long <- data_g %>%
+  pivot_longer(cols = ri01:ri15, names_to = "coditem", values_to = "p")
+  
+data_g_long %>% 
+  ggplot(aes(x = score, y = p, color = coditem)) +
+  geom_line() 
+
+  
+```
+
+```{r}
+#Run IRT analysis
+library(TAM)
+
+
+mod1 <- tam.jml(data)
+
+
+summary(mod1)
+mod1$WLEreliability
+plot(mod1)
+
+
+library(WrightMap)
+WrightMap::wrightMap(mod1$WLE, mod1$xsi, item.side=itemClassic)
+
+
+
+```
+
+```{r}
+save(data, data_g, gf_matrix_resp, gf_key, file = "gf_data.RData")
+```
+

@@ -1,0 +1,102 @@
+---
+title: Análise psicométrica de opções de resposta
+author: "Ricardo Primi"
+date: "16 de março de 2017"
+output: html_document
+---
+
+
+## Análise psicométrica usando o Psych
+
+### Primeiro instale os pacotes
+```{r, eval=FALSE, warning=FALSE}
+
+install.packages("psych")
+install.packages("KernSmoothIRT")
+
+```
+
+`
+
+### Ative as bibliotecas e e abra o arquivo de dados
+
+```{r, warning=FALSE}
+
+library(psych)
+library(KernSmoothIRT)
+
+load("gf_data.RData")
+```
+
+
+### Análise psicométrica clássica 
+```{r, eval = TRUE}
+
+
+psicom <- score.multiple.choice(key = gf_key$key , data = gf_matrix_resp[ , 3:17])
+print.psych(psicom)
+
+```
+
+### Análise gráfica usando o KernSmoothIRT
+```{r, eval = TRUE}
+
+kern <- ksIRT(responses = gf_matrix_resp[ , 3:17], 
+              key =  gf_key$key, 
+              RankFun= "mean", 
+              format = 1)
+
+plot(kern, plottype = "OCC")
+
+```
+
+### Análise gráfica usando o Psych
+```{r, eval = TRUE}
+
+# Passo 1. Rodar o score.multiple.choice de novo pedindo os escores
+#psicom2 <- score.multiple.choice(key = gab, data = dt[ , 7:32], 
+#        score = TRUE, short = FALSE)
+#str(psicom2)
+#head(psicom2$scores)
+irt.responses(data$score, gf_matrix_resp[ , 3:17], breaks = 8)
+
+
+```
+
+```{r}
+library(psych)
+library(ShinyItemAnalysis)
+
+# difficulty and discrimination plot
+DDplot(data[ , 1:15], discrim = "ULI", k = 3, l = 1, u = 3)
+
+# traditional item analysis table
+ItemAnalysis(data[ , 1:15])
+
+library(ShinyItemAnalysis)
+
+names(gf_matrix_resp)
+
+# combinations - plot for item 1 and 3 groups
+plotDistractorAnalysis(Data = gf_matrix_resp[ , 3:17], 
+                       key =  gf_key$key, 
+                       num.group = 10, 
+                       item = "all",
+                       multiple.answers = FALSE)
+
+DistractorAnalysis(Data = gf_matrix_resp[ , 3:17], 
+                       key =  gf_key$key, 
+                       num.group = 10, 
+                       item = "all",
+                   p.table = TRUE)
+
+
+```
+
+
+## Exercício 2: análise psicométrica
+* Crie um diretório
+* Importe os arquvivos em Excel (dados e gabaritos) do ENEM de [link](www.labape.com.br/rprimi/statR/enem2014.xlsx)
+* Examine as variáveis nos dataframes
+* Faça uma análise psicométrica das provas MT e CH
+* Produza uma análise gráfica dos itens das provas MT e CH via kernsmooth e psych
