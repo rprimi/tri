@@ -33,20 +33,13 @@ load("gf_data.RData")
 ```{r, eval = TRUE}
 
 
-psicom <- score.multiple.choice(key = gf_key$key , data = gf_matrix_resp[ , 3:17])
-print.psych(psicom)
+psicom_gf <- score.multiple.choice(
+  key = gf_key$key , 
+  data = gf_matrix_resp[ , 3:17]
+  )
 
-```
 
-### Análise gráfica usando o KernSmoothIRT
-```{r, eval = TRUE}
-
-kern <- ksIRT(responses = gf_matrix_resp[ , 3:17], 
-              key =  gf_key$key, 
-              RankFun= "mean", 
-              format = 1)
-
-plot(kern, plottype = "OCC")
+print.psych(psicom_gf)
 
 ```
 
@@ -58,36 +51,67 @@ plot(kern, plottype = "OCC")
 #        score = TRUE, short = FALSE)
 #str(psicom2)
 #head(psicom2$scores)
+#
+#
 irt.responses(data$score, gf_matrix_resp[ , 3:17], breaks = 8)
 
 
 ```
 
+
+### Análise gráfica usando o KernSmoothIRT
+```{r, eval = TRUE}
+
+kern <- ksIRT(responses = gf_matrix_resp[ , 3:17], 
+              key =  gf_key$key, 
+              RankFun= "mean", 
+              format = 1)
+
+plot(kern, plottype = "OCC")
+plot(kern, plottype = "density")
+plot(kern, plottype = "EIS")
+plot(kern, plottype = "expected") 
+plot(kern, plottype = "sd") 
+plot(kern, plottype = "RCC", subjects = c(1:10)) 
+plot(kern, plottype = "triangle") 
+plot(kern, plottype = "tetrahedron") 
+plot(kern, plottype = "PCA") 
+
+
+```
+
+
 ```{r}
 library(psych)
 library(ShinyItemAnalysis)
 
-# difficulty and discrimination plot
-DDplot(data[ , 1:15], discrim = "ULI", k = 3, l = 1, u = 3)
 
 # traditional item analysis table
 ItemAnalysis(data[ , 1:15])
+
+# difficulty and discrimination plot
+DDplot(data[ , 1:15], discrim = "ULI", k = 3, l = 1, u = 3)
+
 
 library(ShinyItemAnalysis)
 
 names(gf_matrix_resp)
 
 # combinations - plot for item 1 and 3 groups
+# 
+debugonce(plotDistractorAnalysis)
+
+
 plotDistractorAnalysis(Data = gf_matrix_resp[ , 3:17], 
                        key =  gf_key$key, 
                        num.group = 10, 
                        item = "all",
-                       multiple.answers = FALSE)
+                       multiple.answers = TRUE)
 
 DistractorAnalysis(Data = gf_matrix_resp[ , 3:17], 
                        key =  gf_key$key, 
                        num.group = 10, 
-                       item = "all",
+                       item = "ri01",
                    p.table = TRUE)
 
 
