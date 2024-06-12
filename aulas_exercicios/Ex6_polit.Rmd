@@ -1,0 +1,222 @@
+---
+title: 'Exercício 6: Analise TCT e TRI de escalas likert. TRI com respostas politômicas'
+
+author: "Ricardo Primi"
+date: "30 de outubro de 2017"
+output: html_document
+---
+
+##### Configurando ambiente e carregando dados e funções
+
+```{r}
+     
+    setwd("~/Dropbox (Personal)/TRI/2017_exercicios")
+    load("senna_v2_tri_ex6.RData")
+
+    # Função que automatiza a criação de keys do psych
+    
+    source("http://www.labape.com.br/rprimi/R/score_tests.R")
+
+```
+
+
+##### TCT usando a função score_tests
+
+* A função espera um dicionário como dataframe sendo que cada linha represneta um item do teste e os atributos dos itens em colunas
+* Os atributos (ou variáveis) descrevendo os itens devem ter (exatamente com esses nnomes):
+    + coditem: nome do item no banco
+    + factor: o fator que o item mede (para o psych calcular os escores)
+    + pole: o polo do construto (alto/positivo vs baixo/negativo) que o item representa codificado com 0: baixo e 1 alto
+    + item_text: o texto referente ao item
+
+* Deve-se passar para a função o banco de dados e o dicionário. Ela retronará o objeto do psych com as análises psicométricas e os escores.Os parâmetros da função são:
+    + data: o dataframe com os dados
+    + item_dic: o dicionário
+    + min e max: os valores mínimos e máximos das respostas aos itens
+    + run_scrub: valor lógico (TRUE ou FALSE) indicando se você quer rodar a função scrub que transforma em missing respostas fora dos valores min e max
+    + sav_item_stat: valor lógico (TRUE ou FALSE) indicando se você quer salvar os dados de análise psicométricos dos itens e escala.
+
+```{r warning=FALSE, message=FALSE, eval=FALSE}
+  
+    library(psych)
+    library(xlsx)
+
+
+    psicom <- score_tests( data = df, min = 1, max = 5, 
+                              item_dic = item_dic2,
+                              filename = "item.xlsx",
+                              save_item_stat = TRUE)
+    
+    
+```
+##### Investigando o objeto retornado pela função
+
+```{r}
+    library(psych)
+    print.psych(psicom, short = FALSE)
+    describe(psicom$scores)
+```
+
+###### Modelo de Samejima resposta graduada via mirt
+
+* Nesse exercício note o uso do _dplyr_ 
+* Note também as discriminações dos itens! Porque ha itens com discriminação negativa?
+
+```{r}
+
+# Seleciona variáveis de um fator 
+  library(dplyr)
+  items <- item_dic2 %>% filter(factor == "C") %>% select(coditem)
+
+  
+  library(mirt)
+  mod_graded <- 
+    df %>% select(items$coditem) %>%
+    mirt(1, TOL = .001)
+  
+  coef(mod_graded, simplify=TRUE, IRTpars = TRUE)
+
+  itemplot(mod_graded, 4, type = 'trace')
+  itemplot(mod_graded, 1, type = 'trace')
+  itemplot(mod_graded, 6, type = 'trace')
+  
+  plot(mod_graded, type = "trace", which.items = c(1:8))
+ 
+  plot(mod_graded, type = "info")
+
+
+
+```
+
+
+###### Modelo "rating scale" de Andrich 
+
+* Qual o problema de rodar as análises sem inverter os itens ? 
+* Note a versatilidade da linguagem vetorial do R ! 
+```{r}
+
+# Invertendo itens negativos
+  itens_negativos <- item_dic2 %>% filter(pole ==0) %>% select(coditem)
+  df2 <- df
+  df2[ , itens_negativos$coditem] <- 6-df2[ , itens_negativos$coditem]
+  
+  
+  mod_rsmIRT <- 
+    df2 %>% select(items$coditem) %>%
+    mirt(1, itemtype = 'rsm', TOL = .001)
+
+  coef(mod_rsmIRT , simplify=TRUE, irt.parms = TRUE)
+
+  plot(mod_rsmIRT, type = "trace", which.items = c(1:8))
+  
+ 
+  
+   
+   
+  
+  
+```
+
+###### Mapas de construto com o pacote _WrightMap_
+
+* Veja (https://www.rasch.org/rmt/rmt223a.htm)
+
+```{r}
+# Ative o pacote  
+  library(WrightMap)
+
+# Calcula os tehtas 
+  thetas <- fscores(mod_rsmIRT, method = "ML")
+
+# Cria dataframe com os thresholds 
+  
+  coef(mod_rsmIRT , simplify=TRUE, irt.parms = TRUE)
+  
+  thresholds <-  coef(mod_rsmIRT , simplify=TRUE, irt.parms = TRUE)$items %>% 
+    as.data.frame()
+
+# Cria coditem
+  thresholds$coditem <- rownames(thresholds)
+
+# Calcula thtresholds em cada categori
+  thresholds[ , 2:5] <-  thresholds[ , 2:5] + thresholds[ , 6]
+  
+# Traz informação dos itens 
+  var_itens <- names(item_dic2)[c(1,3,5, 9:11)]
+  thresholds <- left_join(thresholds, item_dic2[ , var_itens], by="coditem")
+  thresholds <- thresholds %>% arrange(c)
+  
+# Mapa classico
+  
+  wrightMap(thetas, thresholds[ , 2:5], item.side = itemClassic, 
+            return.thresholds = FALSE)
+  
+# Mapa mais elaborado
+ 
+# Cores dos thresholds
+  library(RColorBrewer)
+  cores <- rep(brewer.pal(4, "Set1"), 45)
+  threshold_col <- matrix(cores, byrow = TRUE, ncol = 4)
+  
+  library(stringr)
+ 
+# Mapa de construto
+   wrightMap(thetas, thresholds[ , 2:5],  
+            main.title = "",
+            item.prop = 0.75,                   # Proporçao espaço do item/theta
+            show.thr.lab= FALSE,                # Nao mostra label dos thresholds
+            thr.sym.col.fg = threshold_col,             # Colori os thresholds
+            thr.sym.col.bg = threshold_col,
+            thr.sym.cex = .8,                   # tamanho dos simbolos do thresshold
+            axis.items="",                      # elimina label do eixo x
+            label.items.srt=90,                 # ajusta item label para vertical
+            label.items.cex = .4,               # tamanho da fonte dos itema
+            label.items = str_sub(thresholds$item_text, 1, 20), # label dos itens 
+            return.thresholds = FALSE, cutpoints = -1)
+```
+
+##### Mapa de construto baseado no modelo "Master's Partial Credit model"
+```{r fig.width=22}
+
+devtools::install_github('datarootsio/artyfarty')
+
+
+ source("http://www.labape.com.br/rprimi/R/make_construct_map5.R")
+
+# Dicionário
+  items <- item_dic2 %>% filter(factor == "A")
+
+# Inverte itens
+  itens_negativos <- item_dic2 %>% filter(pole ==0) %>% select(coditem)
+  df2 <- df
+  df2[ , itens_negativos$coditem] <- 6-df2[ , itens_negativos$coditem]
+  
+# Calibrando os itens modelo 
+ mod_pcmIRT <- 
+    df2 %>% select(items$coditem) %>% 
+    mirt(1, itemtype = 'Rasch', TOL = .001)
+
+# Parâmetros dos itens
+  coef(mod_pcmIRT , simplify=TRUE, IRTpars = TRUE)
+
+# Estima scpres dos sujeitos
+  thetas <- fscores(mod_pcmIRT, method = "ML")  
+  thetas[is.infinite(thetas)] <- NA
+
+
+# Categorias
+  categ_label <- c("nada", "pouco", "+ou-", "muito", "tudo")
+  
+# Faz o mapa
+  make_construct_map5(mirtObj = mod_pcmIRT, 
+                      dic =  items, 
+                      data = df, 
+                      min = -2.5, max=2, 
+                      categ_label = categ_label)
+
+ 
+  
+  plot(mod_pcmIRT, type = 'rxx')   
+  
+```
+

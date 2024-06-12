@@ -41,7 +41,7 @@ http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/senna_v1_54_ex3.RDS
   con<-url("http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/senna_v1_54_ex3.RDS") 
   sennav1 <-  readRDS(con) 
  
-  sennav1 <- readRDS("~/Dropbox (Personal)/TRI/2019_2021_slides_exerc/ senna_v1_54_ex3.RDS")
+  sennav1 <- readRDS("~/Dropbox (Personal)/TRI/2019_2021_slides_exerc/senna_v1_54_ex3.RDS")
 
   con<-url("http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/senna_v1_54_ex3_dic.RDS") 
   item_dic <-  readRDS(con)
@@ -89,6 +89,7 @@ http://www.labape.com.br/rprimi/TRI/2019_slides_exerc/senna_v1_54_ex3.RDS
    mutate( across( all_of(it_neg), ~6 - .x) ) %>%
    mutate( across( everything(), ~.x - 1)) 
   
+  debugonce(describe_likert5_items)
   
   describe_likert5_items(
     data =dt,
